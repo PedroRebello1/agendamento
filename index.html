@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Índice de Programas</title>
+    <style>
+        /* =========================================
+           1. VARIÁVEIS DE TEMA
+           ========================================= */
+        .theme-container {
+            /* Light Mode */
+            --bg-color: #e5e5ea;
+            --text-color: #323133;
+            --card-bg: #ffffff;
+            --card-border: #e9e9e9;
+            --panel-bg: rgba(255, 255, 255, 0.6);
+            --panel-border: rgba(255, 255, 255, 0.8);
+            --blob-1: #ff2a5f;
+            --blob-2: #007aff;
+            --blob-3: #ff9500;
+            --blob-opacity: 0.7;
+            
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+            
+            --icon-color: rgba(0, 0, 0, 0.5);
+            --icon-active: rgba(0, 0, 0, 0.95);
+        }
+
+        .theme-container.dark {
+            /* Dark Mode */
+            --bg-color: #000000;
+            --text-color: #F5F7FA;
+            --card-bg: #222126;
+            --card-border: #252429;
+            --panel-bg: rgba(34, 33, 38, 0.6);
+            --panel-border: rgba(255, 255, 255, 0.1);
+            --blob-1: #bf5af2;
+            --blob-2: #0a84ff;
+            --blob-3: #ff375f;
+            --blob-opacity: 0.5;
+            
+            --glass-bg: rgba(30, 30, 35, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-shadow: rgba(0, 0, 0, 0.8);
+            
+            --icon-color: rgba(255, 255, 255, 0.5);
+            --icon-active: #ffffff;
+        }
+
+        /* =========================================
+           2. RESET & LAYOUT GLOBAL
+           ========================================= */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            background-color: var(--bg-color);
+        }
+
+        .theme-container {
+            position: relative;
+            width: 100vw;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+            padding: 2rem;
+        }
+
+        /* =========================================
+           3. BACKGROUND BLOBS
+           ========================================= */
+        .bg-mesh {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: var(--blob-opacity);
+            animation: float 20s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            will-change: transform;
+        }
+
+        .blob-1 { width: 50vw; height: 50vw; top: -10%; left: -10%; background: var(--blob-1); animation-delay: 0s; }
+        .blob-2 { width: 45vw; height: 45vw; bottom: -10%; right: -10%; background: var(--blob-2); animation-delay: -5s; }
+        .blob-3 { width: 35vw; height: 35vw; top: 30%; left: 40%; background: var(--blob-3); animation-delay: -10s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            33% { transform: translate(5%, 10%) scale(1.05) rotate(5deg); }
+            66% { transform: translate(-5%, 5%) scale(0.95) rotate(-5deg); }
+            100% { transform: translate(0, -10%) scale(1.1) rotate(0deg); }
+        }
+
+        /* =========================================
+           4. ÁREA DE CONTEÚDO (GRID DE APPS)
+           ========================================= */
+        .content-area {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px var(--glass-shadow);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            width: 100%;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .page-copyright {
+            text-align: center;
+            font-size: 0.8rem;
+            margin-top: 2rem;
+            opacity: 0.5;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem 1.5rem;
+            width: 100%;
+        }
+
+        .app-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            box-shadow: 0 10px 30px var(--glass-shadow);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            text-decoration: none;
+            color: var(--text-color);
+            transition: transform 0.3s ease;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            background: var(--card-bg);
+        }
+
+        .app-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            transform: translateY(15px);
+            transition: transform 0.3s ease;
+        }
+
+        .app-card:hover .app-content {
+            transform: translateY(-5px);
+        }
+
+        .app-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-bottom: 0.8rem;
+            background-color: var(--glass-border);
+            flex-shrink: 0;
+        }
+
+        .app-title {
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .app-desc {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1rem;
+            right: 1rem;
+            text-align: center;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+
+        .app-card:hover .app-desc {
+            opacity: 0.9;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .glass-panel { padding: 2rem; }
+            .app-grid { grid-template-columns: repeat(2, 1fr); gap: 2.5rem 1rem; }
+        }
+        @media (max-width: 600px) {
+            .app-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .glass-panel { padding: 1.5rem 1rem; }
+            .app-grid { grid-template-columns: 1fr; gap: 2rem 1rem; }
+            .app-card { height: 160px; }
+        }
+
+        /* =========================================
+           5. BOTÃO DE TEMA FLUTUANTE
+           ========================================= */
+        .theme-btn-floating {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px var(--glass-shadow);
+            color: var(--icon-color);
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .theme-btn-floating:hover, .theme-btn-floating:active {
+            color: var(--icon-active);
+        }
+
+        .theme-btn-floating:active {
+            transform: scale(0.9);
+        }
+
+        .theme-icon-wrapper {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+
+        .theme-icon-wrapper svg {
+            position: absolute;
+            top: 0; left: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.4s ease;
+            stroke-width: 2.2;
+        }
+
+        .sun { opacity: 1; transform: rotate(0deg) scale(1); }
+        .moon { opacity: 0; transform: rotate(-90deg) scale(0); }
+
+        .theme-container.dark .sun { opacity: 0; transform: rotate(90deg) scale(0); }
+        .theme-container.dark .moon { opacity: 1; transform: rotate(0deg) scale(1); }
+
+        /* =========================================
+           6. VIEW TRANSITIONS API (MÁSCARA)
+           ========================================= */
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation: none;
+            mix-blend-mode: normal;
+        }
+        ::view-transition-old(root) {
+            z-index: 1;
+        }
+        ::view-transition-new(root) {
+            z-index: 2;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="app-container" class="theme-container dark">
+        
+        <div class="bg-mesh">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+        </div>
+
+        <main class="content-area">
+            <div class="glass-panel">
+                <div class="page-title">Modelos para widget de agendamento</div>
+                <div class="app-grid" id="app-grid"></div>
+                <div class="page-copyright">&copy; Pedro Rebello</div>
+            </div>
+        </main>
+
+        <button class="theme-btn-floating" id="theme-btn" aria-label="Alternar Tema">
+            <div class="theme-icon-wrapper">
+                <svg class="sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </div>
+        </button>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            initAppsRender();
+            initThemeToggle();
+
+            function initAppsRender() {
+                try {
+                    const appGrid = document.getElementById("app-grid");
+                    if (!appGrid) throw new Error("Container do grid não encontrado.");
+
+                    const appsData = [
+                        { title: "Claude", url: "https://pedrorebello1.github.io/agendamento/agendamentoClaude.html", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Claude-ai-icon.svg/960px-Claude-ai-icon.svg.png", desc: "Feita com Claude Opus 4.8" },
+                        { title: "ChatGPT", url: "https://pedrorebello1.github.io/agendamento/agendamentoGPT.html", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/3840px-ChatGPT_logo.svg.png", desc: "Feita com ChatGPT 5.5 Codex" },
+                        { title: "Gemini", url: "https://pedrorebello1.github.io/agendamento/agendamentoGemini.html", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Google_Gemini_icon_2025.svg/960px-Google_Gemini_icon_2025.svg.png?_=20250728014952", desc: "Feita com Gemini 3.1 Pro" }
+                    ];
+
+                    appGrid.innerHTML = appsData.map(app => `
+                        <a href="${app.url}" class="app-card" target="${app.url !== '#' ? '_blank' : '_self'}" rel="noopener noreferrer">
+                            <div class="app-content">
+                                <img src="${app.img}" alt="${app.title} icon" class="app-icon" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjY2NjIi8+PC9zdmc+'">
+                                <div class="app-title">${app.title}</div>
+                            </div>
+                            <div class="app-desc">${app.desc}</div>
+                        </a>
+                    `).join("");
+
+                } catch (error) {
+                    console.error("Erro ao renderizar os aplicativos:", error);
+                }
+            }
+
+            function initThemeToggle() {
+                try {
+                    const themeBtn = document.getElementById("theme-btn");
+                    const appContainer = document.getElementById("app-container");
+
+                    if (!themeBtn || !appContainer) throw new Error("Elementos de tema não encontrados.");
+
+                    themeBtn.addEventListener("click", () => {
+                        if (!document.startViewTransition) {
+                            appContainer.classList.toggle("dark");
+                            return;
+                        }
+
+                        const rect = themeBtn.getBoundingClientRect();
+                        const x = rect.left + rect.width / 2;
+                        const y = rect.top + rect.height / 2;
+
+                        const endRadius = Math.hypot(
+                            Math.max(x, window.innerWidth - x),
+                            Math.max(y, window.innerHeight - y)
+                        );
+
+                        const transition = document.startViewTransition(() => {
+                            appContainer.classList.toggle("dark");
+                        });
+
+                        transition.ready.then(() => {
+                            const clipPath = [
+                                `circle(0px at ${x}px ${y}px)`,
+                                `circle(${endRadius}px at ${x}px ${y}px)`
+                            ];
+
+                            // A animação agora se aplica sempre ao novo estado, independentemente do tema
+                            document.documentElement.animate(
+                                {
+                                    clipPath: clipPath,
+                                },
+                                {
+                                    duration: 600,
+                                    easing: "ease-in-out",
+                                    pseudoElement: "::view-transition-new(root)",
+                                }
+                            );
+                        });
+                    });
+                } catch (error) {
+                    console.error("Erro na transição de tema:", error);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
