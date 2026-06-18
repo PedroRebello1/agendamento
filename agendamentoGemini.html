@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget de Agendamento L'Elegance</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap');
+
+        /* Variáveis L'Elegance baseadas na sua identidade */
+        :root {
+            --azul-escuro: #0B192C;
+            --roxo: #7E57C2;
+            --roxo-hover: #5E35B1;
+            --prata: #B0BEC5;
+            --branco: #FFFFFF;
+            --bg-claro: #F8F9FA;
+            --borda: #E0E0E0;
+            --texto-muted: #6B7280;
+            --erro: #E53935;
+            --sucesso: #43A047;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #E9ECEF;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        /* Container Principal */
+        .elegance-widget {
+            background: var(--branco);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid var(--borda);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Seção de Dados (Topo) */
+        .dados-section {
+            padding: 2rem;
+            border-bottom: 1px solid var(--borda);
+            background: var(--bg-claro);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--azul-escuro);
+            margin-bottom: 0.5rem;
+        }
+
+        input, select {
+            padding: 0.8rem;
+            border: 1px solid var(--prata);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--roxo);
+        }
+
+        input.invalid, select.invalid { border-color: var(--erro); background: #FFEBEE; }
+        
+        /* Layout Duplo: Calendário e Horários */
+        .scheduler-ui {
+            display: flex;
+            flex-direction: row;
+            min-height: 400px;
+        }
+
+        /* Lado Esquerdo: Calendário */
+        .calendar-section {
+            flex: 1;
+            padding: 2rem;
+            border-right: 1px solid var(--borda);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .month-year {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--azul-escuro);
+        }
+
+        .nav-arrows {
+            display: flex;
+            gap: 10px;
+        }
+
+        .arrow-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--texto-muted);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .arrow-btn:hover:not(:disabled) { background: var(--bg-claro); color: var(--azul-escuro); }
+        .arrow-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--texto-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+
+        .day-cell {
+            padding: 10px 0;
+            border-radius: 50%;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--azul-escuro);
+        }
+
+        .day-cell:hover:not(.disabled) { background-color: rgba(126, 87, 194, 0.1); }
+        .day-cell.active { background-color: rgba(126, 87, 194, 0.2); color: var(--roxo); }
+        .day-cell.selected { background-color: var(--roxo); color: var(--branco); }
+        .day-cell.disabled { color: #D1D5DB; cursor: not-allowed; text-decoration: line-through; text-decoration-color: rgba(0,0,0,0.2); }
+
+        /* Lado Direito: Horários */
+        .time-section {
+            flex: 1;
+            padding: 2rem;
+            background: #FAFAFA;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .selected-date-display {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--azul-escuro);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .time-slots-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            max-height: 300px;
+            padding-right: 5px;
+        }
+
+        /* Estilo Pill Buttons (Baseado na imagem) */
+        .time-slot-wrapper {
+            display: flex;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .btn-time {
+            flex: 1;
+            background: var(--branco);
+            border: 1px solid var(--roxo);
+            color: var(--roxo);
+            padding: 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .btn-time:hover { border-width: 2px; }
+        
+        .time-slot-wrapper.active .btn-time {
+            background: var(--texto-muted);
+            color: var(--branco);
+            border-color: var(--texto-muted);
+            flex: 0.5; /* Encolhe para dar espaço ao botão confirmar */
+        }
+
+        .btn-confirm {
+            display: none;
+            flex: 0.5;
+            background: var(--roxo);
+            color: var(--branco);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-confirm:hover { background: var(--roxo-hover); }
+        .time-slot-wrapper.active .btn-confirm { display: block; animation: slideIn 0.2s ease forwards; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .empty-state { text-align: center; color: var(--texto-muted); margin-top: 2rem; font-size: 0.9rem; }
+        .resumo-valor { margin-top: auto; padding-top: 1rem; text-align: center; font-size: 1.1rem; font-weight: bold; color: var(--azul-escuro); }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .scheduler-ui { flex-direction: column; }
+            .calendar-section { border-right: none; border-bottom: 1px solid var(--borda); }
+            .time-slot-wrapper.active { flex-direction: column; }
+            .time-slot-wrapper.active .btn-time { flex: 1; }
+            .time-slot-wrapper.active .btn-confirm { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="elegance-widget">
+        <div class="dados-section">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="wg-nome" placeholder="Seu nome" required>
+                </div>
+                <div class="input-group">
+                    <label>WhatsApp</label>
+                    <input type="tel" id="wg-whatsapp" placeholder="(00) 00000-0000" required>
+                </div>
+                <div class="input-group">
+                    <label>Procedimento</label>
+                    <select id="wg-servico" required>
+                        <option value="0" disabled selected>Selecione...</option>
+                        <option value="1500">Harmonização Facial - R$ 1.500</option>
+                        <option value="1200">Toxina Botulínica - R$ 1.200</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Profissional</label>
+                    <select id="wg-medico" required>
+                        <option value="0" disabled selected>Selecione a médica...</option>
+                        <option value="medica1">Médica 1 (Seg, Qua, Sex)</option>
+                        <option value="medica2">Médica 2 (Ter, Qui)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="scheduler-ui">
+            
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <div class="month-year" id="cal-month-year">Janeiro 2026</div>
+                    <div class="nav-arrows">
+                        <button class="arrow-btn" id="btn-prev-month">◄</button>
+                        <button class="arrow-btn" id="btn-next-month">►</button>
+                    </div>
+                </div>
+                <div class="weekdays">
+                    <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                </div>
+                <div class="days-grid" id="cal-days-grid">
+                    </div>
+            </div>
+
+            <div class="time-section">
+                <div class="selected-date-display" id="display-selected-date">Selecione uma data</div>
+                
+                <div class="time-slots-container" id="time-slots-container">
+                    <div class="empty-state">Preencha os dados e escolha um dia no calendário para ver os horários.</div>
+                </div>
+
+                <div class="resumo-valor" id="display-valor">Estimativa: R$ 0,00</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        class SistemaAgendamentoUI {
+            constructor() {
+                this.STORAGE_KEY = 'lelegance_agendamentos';
+                // Configuração real solicitada:
+                // Medica 1: Seg(1), Qua(3), Sex(5)
+                // Medica 2: Ter(2), Qui(4)
+                this.configProfissionais = {
+                    'medica1': { dias: [1, 3, 5], slots: ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00'] },
+                    'medica2': { dias: [2, 4], slots: ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00'] }
+                };
+
+                this.mesesStr = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                this.diasStr = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+
+                // Estado da Aplicação
+                this.dataAtual = new Date();
+                this.mesRenderizado = this.dataAtual.getMonth();
+                this.anoRenderizado = this.dataAtual.getFullYear();
+                this.dataSelecionadaStr = null; // Formato YYYY-MM-DD
+                this.horarioSelecionado = null;
+
+                // Elementos do DOM
+                this.elNome = document.getElementById('wg-nome');
+                this.elZap = document.getElementById('wg-whatsapp');
+                this.elServico = document.getElementById('wg-servico');
+                this.elMedico = document.getElementById('wg-medico');
+                
+                this.elMonthYear = document.getElementById('cal-month-year');
+                this.elDaysGrid = document.getElementById('cal-days-grid');
+                this.btnPrev = document.getElementById('btn-prev-month');
+                this.btnNext = document.getElementById('btn-next-month');
+                
+                this.elDisplayDate = document.getElementById('display-selected-date');
+                this.elSlotsContainer = document.getElementById('time-slots-container');
+                this.elDisplayValor = document.getElementById('display-valor');
+
+                this.inicializar();
+            }
+
+            inicializar() {
+                try {
+                    this.vincularEventosBase();
+                    this.renderizarCalendario();
+                } catch (error) {
+                    console.error("Erro na inicialização do Widget UI:", error);
+                }
+            }
+
+            vincularEventosBase() {
+                // Navegação do Calendário
+                this.btnPrev.addEventListener('click', () => {
+                    this.mesRenderizado--;
+                    if (this.mesRenderizado < 0) { this.mesRenderizado = 11; this.anoRenderizado--; }
+                    this.renderizarCalendario();
+                });
+
+                this.btnNext.addEventListener('click', () => {
+                    this.mesRenderizado++;
+                    if (this.mesRenderizado > 11) { this.mesRenderizado = 0; this.anoRenderizado++; }
+                    this.renderizarCalendario();
+                });
+
+                // Mudança de Médico recarrega o calendário para desabilitar dias corretos
+                this.elMedico.addEventListener('change', () => {
+                    this.resetarSelecao();
+                    this.renderizarCalendario();
+                });
+
+                // Atualizar valor
+                this.elServico.addEventListener('change', (e) => {
+                    const val = parseFloat(e.target.value);
+                    if (val > 0) this.elDisplayValor.textContent = `Estimativa: ${val.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}`;
+                });
+            }
+
+            renderizarCalendario() {
+                this.elMonthYear.textContent = `${this.mesesStr[this.mesRenderizado]} ${this.anoRenderizado}`;
+                this.elDaysGrid.innerHTML = '';
+
+                const primeiroDiaMes = new Date(this.anoRenderizado, this.mesRenderizado, 1).getDay();
+                const diasNoMes = new Date(this.anoRenderizado, this.mesRenderizado + 1, 0).getDate();
+                
+                const hoje = new Date();
+                hoje.setHours(0,0,0,0);
+
+                const medicoId = this.elMedico.value;
+                const configMedico = this.configProfissionais[medicoId];
+
+                // Controle do botão Prev (não voltar para meses antes do atual)
+                const renderizandoData = new Date(this.anoRenderizado, this.mesRenderizado, 1);
+                this.btnPrev.disabled = (renderizandoData <= new Date(hoje.getFullYear(), hoje.getMonth(), 1));
+
+                // Preencher espaços vazios iniciais
+                for (let i = 0; i < primeiroDiaMes; i++) {
+                    const div = document.createElement('div');
+                    this.elDaysGrid.appendChild(div);
+                }
+
+                // Preencher dias
+                for (let dia = 1; dia <= diasNoMes; dia++) {
+                    const divDia = document.createElement('div');
+                    divDia.classList.add('day-cell');
+                    divDia.textContent = dia;
+
+                    const dataRef = new Date(this.anoRenderizado, this.mesRenderizado, dia);
+                    const dataRefStr = this.formatarDataIso(dataRef);
+                    const diaSemana = dataRef.getDay();
+
+                    // Validações de Bloqueio
+                    let isDisabled = false;
+
+                    // 1. Data no passado
+                    if (dataRef < hoje) isDisabled = true;
+                    // 2. Médico selecionado, mas não atende neste dia da semana
+                    if (medicoId !== '0' && configMedico && !configMedico.dias.includes(diaSemana)) isDisabled = true;
+                    // 3. Médico não selecionado (bloqueia tudo até selecionar)
+                    if (medicoId === '0') isDisabled = true;
+
+                    if (isDisabled) {
+                        divDia.classList.add('disabled');
+                    } else {
+                        // Dia válido
+                        // Verifica se este é o dia atualmente selecionado no state
+                        if (this.dataSelecionadaStr === dataRefStr) {
+                            divDia.classList.add('selected');
+                        }
+
+                        divDia.addEventListener('click', () => this.selecionarData(dataRefStr, divDia, dataRef));
+                    }
+
+                    this.elDaysGrid.appendChild(divDia);
+                }
+            }
+
+            selecionarData(dataStr, elementoDiv, dataObj) {
+                if (!this.validarCamposTopo()) return;
+
+                // Atualizar UI do Calendário
+                document.querySelectorAll('.day-cell.selected').forEach(el => el.classList.remove('selected'));
+                elementoDiv.classList.add('selected');
+
+                this.dataSelecionadaStr = dataStr;
+                
+                // Atualizar UI dos Horários
+                const txtData = `${this.diasStr[dataObj.getDay()]}, ${dataObj.getDate()} de ${this.mesesStr[dataObj.getMonth()]}`;
+                this.elDisplayDate.textContent = txtData;
+                
+                this.renderizarHorarios();
+            }
+
+            renderizarHorarios() {
+                this.elSlotsContainer.innerHTML = '';
+                const medicoId = this.elMedico.value;
+                const slotsMedico = this.configProfissionais[medicoId].slots;
+                
+                const agendamentosDb = this.lerAgendamentos();
+                const slotsOcupados = agendamentosDb
+                    .filter(a => a.medico === medicoId && a.data === this.dataSelecionadaStr)
+                    .map(a => a.hora);
+
+                let slotsDisponiveis = 0;
+
+                slotsMedico.forEach(slotTime => {
+                    if (slotsOcupados.includes(slotTime)) return; // Pula ocupados
+
+                    slotsDisponiveis++;
+                    
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('time-slot-wrapper');
+
+                    const btnTime = document.createElement('button');
+                    btnTime.classList.add('btn-time');
+                    btnTime.textContent = slotTime;
+
+                    const btnConfirm = document.createElement('button');
+                    btnConfirm.classList.add('btn-confirm');
+                    btnConfirm.textContent = 'Confirmar';
+
+                    // Lógica de click no horário (Abre o Confirmar)
+                    btnTime.addEventListener('click', () => {
+                        // Reseta outros wrappers
+                        document.querySelectorAll('.time-slot-wrapper').forEach(w => w.classList.remove('active'));
+                        wrapper.classList.add('active');
+                        this.horarioSelecionado = slotTime;
+                    });
+
+                    // Lógica de Finalizar Agendamento
+                    btnConfirm.addEventListener('click', () => this.finalizarAgendamento());
+
+                    wrapper.appendChild(btnTime);
+                    wrapper.appendChild(btnConfirm);
+                    this.elSlotsContainer.appendChild(wrapper);
+                });
+
+                if (slotsDisponiveis === 0) {
+                    this.elSlotsContainer.innerHTML = '<div class="empty-state">Nenhum horário disponível para esta data.</div>';
+                }
+            }
+
+            validarCamposTopo() {
+                const campos = [this.elNome, this.elZap, this.elServico, this.elMedico];
+                let valido = true;
+
+                campos.forEach(c => {
+                    if (!c.value.trim() || c.value === '0') {
+                        c.classList.add('invalid');
+                        valido = false;
+                    } else {
+                        c.classList.remove('invalid');
+                    }
+                });
+
+                if (!valido) {
+                    alert('Por favor, preencha seus dados, procedimento e profissional antes de escolher a data.');
+                }
+                return valido;
+            }
+
+            finalizarAgendamento() {
+                if (!this.validarCamposTopo() || !this.dataSelecionadaStr || !this.horarioSelecionado) {
+                    alert("Erro de validação. Revise os dados.");
+                    return;
+                }
+
+                const novoAgendamento = {
+                    id: Date.now().toString(),
+                    nome: this.elNome.value,
+                    whatsapp: this.elZap.value,
+                    servico: this.elServico.value,
+                    medico: this.elMedico.value,
+                    data: this.dataSelecionadaStr,
+                    hora: this.horarioSelecionado,
+                    timestamp: new Date().toISOString()
+                };
+
+                try {
+                    const db = this.lerAgendamentos();
+                    db.push(novoAgendamento);
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(db));
+
+                    alert("Agendamento confirmado com sucesso! Entraremos em contato via WhatsApp.");
+                    
+                    // Limpar tudo
+                    this.elNome.value = '';
+                    this.elZap.value = '';
+                    this.elServico.value = '0';
+                    this.elMedico.value = '0';
+                    this.resetarSelecao();
+                    this.renderizarCalendario();
+
+                } catch (error) {
+                    console.error("Erro ao salvar dados:", error);
+                    alert("Ocorreu um erro interno. Tente novamente.");
+                }
+            }
+
+            resetarSelecao() {
+                this.dataSelecionadaStr = null;
+                this.horarioSelecionado = null;
+                this.elDisplayDate.textContent = 'Selecione uma data';
+                this.elSlotsContainer.innerHTML = '<div class="empty-state">Preencha os dados e escolha um dia no calendário para ver os horários.</div>';
+                this.elDisplayValor.textContent = 'Estimativa: R$ 0,00';
+            }
+
+            lerAgendamentos() {
+                const d = localStorage.getItem(this.STORAGE_KEY);
+                return d ? JSON.parse(d) : [];
+            }
+
+            formatarDataIso(dataObj) {
+                // Retorna formato YYYY-MM-DD corrigindo timezone local
+                const ano = dataObj.getFullYear();
+                const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+                const dia = String(dataObj.getDate()).padStart(2, '0');
+                return `${ano}-${mes}-${dia}`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new SistemaAgendamentoUI();
+        });
+    </script>
+</body>
+</html>

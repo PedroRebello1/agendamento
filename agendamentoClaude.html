@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendamento Clínica</title>
+<style>
+  /* ================= VARIÁVEIS DE PALETA ================= */
+  .sa-app {
+    --sa-azul-escuro: #1a2a4f;
+    --sa-azul-escuro-2: #233a6b;
+    --sa-roxo: #6c3fb5;
+    --sa-roxo-claro: #8a5fd6;
+    --sa-prata: #c5ccd6;
+    --sa-prata-claro: #eef1f6;
+    --sa-branco: #ffffff;
+    --sa-cinza-texto: #5a6473;
+
+    --sa-ok-borda: #2e9e5b;
+    --sa-ok-fundo: #e9f8ef;
+    --sa-erro-borda: #d63b3b;
+    --sa-erro-fundo: #fdeeee;
+
+    --sa-radius: 12px;
+    --sa-sombra: 0 8px 30px rgba(26, 42, 79, 0.12);
+    --sa-transicao: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+    box-sizing: border-box;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--sa-azul-escuro);
+    max-width: 1080px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+  .sa-app *, .sa-app *::before, .sa-app *::after { box-sizing: border-box; }
+
+  /* ================= CABEÇALHO / TOPO ================= */
+  .sa-card {
+    background: var(--sa-branco);
+    border-radius: var(--sa-radius);
+    box-shadow: var(--sa-sombra);
+    padding: 24px;
+    margin-bottom: 22px;
+    border: 1px solid var(--sa-prata-claro);
+  }
+  .sa-header {
+    background: linear-gradient(120deg, var(--sa-azul-escuro), var(--sa-roxo));
+    color: var(--sa-branco);
+    border-radius: var(--sa-radius);
+    padding: 22px 24px;
+    margin-bottom: 22px;
+  }
+  .sa-header h1 { margin: 0 0 4px; font-size: 1.5rem; }
+  .sa-header p { margin: 0; opacity: 0.85; font-size: 0.92rem; }
+
+  /* ================= GRID DE INPUTS ================= */
+  .sa-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .sa-field { display: flex; flex-direction: column; position: relative; }
+  .sa-field label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--sa-azul-escuro);
+  }
+  .sa-field input, .sa-field select {
+    padding: 11px 12px;
+    border: 2px solid var(--sa-prata);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: var(--sa-branco);
+    transition: border-color var(--sa-transicao), background var(--sa-transicao);
+    outline: none;
+    color: var(--sa-azul-escuro);
+  }
+  .sa-field input:focus, .sa-field select:focus { border-color: var(--sa-roxo); }
+
+  /* Estados de validação */
+  .sa-field.sa-valid input, .sa-field.sa-valid select {
+    border-color: var(--sa-ok-borda);
+    background: var(--sa-ok-fundo);
+  }
+  .sa-field.sa-invalid input, .sa-field.sa-invalid select {
+    border-color: var(--sa-erro-borda);
+    background: var(--sa-erro-fundo);
+  }
+  .sa-error-msg {
+    font-size: 0.75rem;
+    color: var(--sa-erro-borda);
+    margin-top: 4px;
+    min-height: 14px;
+    opacity: 0;
+    transform: translateY(-3px);
+    transition: opacity var(--sa-transicao), transform var(--sa-transicao);
+  }
+  .sa-field.sa-invalid .sa-error-msg { opacity: 1; transform: translateY(0); }
+
+  /* Display de valor estimado */
+  .sa-valor-box {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--sa-prata-claro);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 4px;
+  }
+  .sa-valor-box span { font-size: 0.9rem; color: var(--sa-cinza-texto); }
+  .sa-valor-box strong {
+    font-size: 1.4rem;
+    color: var(--sa-roxo);
+    letter-spacing: 0.3px;
+  }
+
+  /* ================= COLUNAS CALENDÁRIO + HORÁRIOS ================= */
+  .sa-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+  .sa-col-title {
+    font-size: 1.05rem;
+    margin: 0 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--sa-prata-claro);
+  }
+  .sa-disabled-overlay {
+    position: relative;
+  }
+  .sa-locked {
+    opacity: 0.45;
+    pointer-events: none;
+    filter: grayscale(0.6);
+  }
+  .sa-hint {
+    background: var(--sa-prata-claro);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 0.85rem;
+    color: var(--sa-cinza-texto);
+    text-align: center;
+  }
+
+  /* ----- Calendário ----- */
+  .sa-cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .sa-cal-nav button {
+    background: var(--sa-azul-escuro);
+    color: var(--sa-branco);
+    border: none;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background var(--sa-transicao);
+  }
+  .sa-cal-nav button:hover { background: var(--sa-roxo); }
+  .sa-cal-nav strong { font-size: 0.95rem; text-transform: capitalize; }
+
+  .sa-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+  .sa-cal-dow {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--sa-cinza-texto);
+    padding: 4px 0;
+  }
+  .sa-day {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: var(--sa-prata-claro);
+    transition: all var(--sa-transicao);
+    user-select: none;
+  }
+  .sa-day:hover:not(.sa-day-off):not(.sa-day-empty) {
+    border-color: var(--sa-roxo);
+  }
+  .sa-day-empty { background: transparent; cursor: default; }
+  .sa-day-off {
+    opacity: 0.4;
+    text-decoration: line-through;
+    cursor: not-allowed;
+    background: transparent;
+    color: var(--sa-cinza-texto);
+  }
+  .sa-day-selected {
+    background: var(--sa-roxo);
+    color: var(--sa-branco);
+    border-color: var(--sa-azul-escuro);
+  }
+
+  /* ----- Horários (pill buttons) ----- */
+  .sa-slots { display: flex; flex-direction: column; gap: 10px; }
+  .sa-slot-row {
+    display: flex;
+    gap: 0;
+    overflow: hidden;
+    border-radius: 10px;
+  }
+  .sa-slot-btn {
+    flex: 1 1 100%;
+    padding: 14px;
+    border: 2px solid var(--sa-prata);
+    background: var(--sa-branco);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--sa-azul-escuro);
+    transition: flex-basis var(--sa-transicao), background var(--sa-transicao), color var(--sa-transicao);
+    white-space: nowrap;
+  }
+  .sa-slot-btn:hover:not(:disabled) { border-color: var(--sa-roxo); }
+  .sa-slot-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    text-decoration: line-through;
+    background: var(--sa-prata-claro);
+  }
+  .sa-slot-row.sa-slot-active .sa-slot-btn {
+    flex-basis: 55%;
+    background: var(--sa-roxo);
+    color: var(--sa-branco);
+    border-color: var(--sa-roxo);
+    border-radius: 10px 0 0 10px;
+  }
+  .sa-confirm-btn {
+    flex: 0 0 0%;
+    width: 0;
+    overflow: hidden;
+    padding: 0;
+    border: none;
+    background: var(--sa-ok-borda);
+    color: var(--sa-branco);
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 0 10px 10px 0;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: flex-basis var(--sa-transicao), opacity var(--sa-transicao),
+                transform var(--sa-transicao), padding var(--sa-transicao);
+    white-space: nowrap;
+  }
+  .sa-slot-row.sa-slot-active .sa-confirm-btn {
+    flex-basis: 45%;
+    width: auto;
+    padding: 14px 10px;
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .sa-confirm-btn:hover { background: #25864c; }
+
+  /* ================= RESPONSIVO ================= */
+  @media (max-width: 720px) {
+    .sa-grid { grid-template-columns: 1fr; }
+    .sa-cols { grid-template-columns: 1fr; }
+  }
+
+  /* ================= TOAST DE SUCESSO ================= */
+  .sa-toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background: var(--sa-ok-borda);
+    color: var(--sa-branco);
+    padding: 16px 20px;
+    border-radius: 10px;
+    box-shadow: var(--sa-sombra);
+    transform: translateX(140%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 999;
+    max-width: 320px;
+    font-size: 0.9rem;
+  }
+  .sa-toast.sa-toast-show { transform: translateX(0); }
+</style>
+</head>
+<body>
+
+<div class="sa-app" id="sa-app">
+  <!-- CABEÇALHO -->
+  <header class="sa-header">
+    <h1>Agendamento Online</h1>
+    <p>Selecione o procedimento, o profissional, a data e o horário desejado.</p>
+  </header>
+
+  <!-- TOPO: COLETA DE DADOS -->
+  <section class="sa-card">
+    <div class="sa-grid">
+      <div class="sa-field" data-field="nome">
+        <label for="sa-nome">Nome completo</label>
+        <input type="text" id="sa-nome" autocomplete="name" placeholder="Ex.: Maria da Silva">
+        <span class="sa-error-msg"></span>
+      </div>
+
+      <div class="sa-field" data-field="cpf">
+        <label for="sa-cpf">CPF</label>
+        <input type="text" id="sa-cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14">
+        <span class="sa-error-msg"></span>
+      </div>
+
+      <div class="sa-field" data-field="whatsapp">
+        <label for="sa-whatsapp">WhatsApp</label>
+        <input type="tel" id="sa-whatsapp" inputmode="numeric" placeholder="(00) 00000-0000" maxlength="15">
+        <span class="sa-error-msg"></span>
+      </div>
+
+      <div class="sa-field" data-field="servico">
+        <label for="sa-servico">Procedimento</label>
+        <select id="sa-servico">
+          <option value="">Selecione...</option>
+        </select>
+        <span class="sa-error-msg"></span>
+      </div>
+
+      <div class="sa-field" data-field="medico">
+        <label for="sa-medico">Profissional</label>
+        <select id="sa-medico">
+          <option value="">Selecione...</option>
+        </select>
+        <span class="sa-error-msg"></span>
+      </div>
+
+      <div class="sa-valor-box">
+        <span>Valor estimado do procedimento</span>
+        <strong id="sa-valor">R$ 0,00</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- BASE: CALENDÁRIO + HORÁRIOS -->
+  <section class="sa-card">
+    <div class="sa-cols">
+      <!-- COLUNA ESQUERDA: CALENDÁRIO -->
+      <div>
+        <h2 class="sa-col-title">Escolha a data</h2>
+        <div id="sa-cal-wrap" class="sa-disabled-overlay">
+          <div class="sa-cal-nav">
+            <button type="button" id="sa-prev" aria-label="Mês anterior">‹</button>
+            <strong id="sa-cal-label"></strong>
+            <button type="button" id="sa-next" aria-label="Próximo mês">›</button>
+          </div>
+          <div class="sa-cal-grid" id="sa-cal-grid"></div>
+        </div>
+      </div>
+
+      <!-- COLUNA DIREITA: HORÁRIOS -->
+      <div>
+        <h2 class="sa-col-title">Horários disponíveis</h2>
+        <div id="sa-slots-wrap" class="sa-slots"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="sa-toast" id="sa-toast"></div>
+
+<script>
+"use strict";
+
+/**
+ * SistemaAgendamentoUI
+ * Componente autônomo de agendamento client-side.
+ * Toda a lógica e estado ficam encapsulados nesta classe.
+ */
+class SistemaAgendamentoUI {
+
+  constructor(rootId) {
+    this.root = document.getElementById(rootId);
+    this.STORAGE_KEY = "sa_agendamentos";
+    this.SENHA_PROVISORIA_LEN = 8;
+
+    // ----- Mock de catálogo (substituível por fetch ao backend) -----
+    this.servicos = [
+      { id: "limpeza",   nome: "Limpeza de Pele",      valor: 180.0 },
+      { id: "botox",     nome: "Toxina Botulínica",    valor: 950.0 },
+      { id: "preencher", nome: "Preenchimento Labial", valor: 1200.0 },
+      { id: "peeling",   nome: "Peeling Químico",      valor: 350.0 }
+    ];
+
+    // diasAtendimento: 0=Dom, 1=Seg ... 6=Sáb
+    this.medicos = [
+      { id: "dra_ana",    nome: "Dra. Ana Costa",     diasAtendimento: [1, 3, 5] },
+      { id: "dr_bruno",   nome: "Dr. Bruno Lima",     diasAtendimento: [2, 4] },
+      { id: "dra_carla",  nome: "Dra. Carla Mendes",  diasAtendimento: [1, 2, 3, 4, 5] }
+    ];
+
+    // Grade padrão de horários de trabalho
+    this.gradeHorarios = [
+      "08:00", "09:00", "10:00", "11:00",
+      "14:00", "15:00", "16:00", "17:00"
+    ];
+
+    // ----- Estado interno -----
+    this.estado = {
+      servico: "",
+      medico: "",
+      dataSelecionada: "",   // formato YYYY-MM-DD
+      horaSelecionada: "",
+      calRef: new Date()     // mês/ano em exibição
+    };
+
+    this._cacheEls();
+    this._popularSelects();
+    this._bindEventos();
+    this._renderCalendario();
+    this._renderSlots();
+    this._validarFormCompleto();
+  }
+
+  /* ===================================================================
+   *  SETUP
+   * =================================================================== */
+  _cacheEls() {
+    const $ = (sel) => this.root.querySelector(sel);
+    this.els = {
+      nome:      $('[data-field="nome"]'),
+      cpf:       $('[data-field="cpf"]'),
+      whatsapp:  $('[data-field="whatsapp"]'),
+      servico:   $('[data-field="servico"]'),
+      medico:    $('[data-field="medico"]'),
+      selServico:$("#sa-servico"),
+      selMedico: $("#sa-medico"),
+      valor:     $("#sa-valor"),
+      calWrap:   $("#sa-cal-wrap"),
+      calGrid:   $("#sa-cal-grid"),
+      calLabel:  $("#sa-cal-label"),
+      prev:      $("#sa-prev"),
+      next:      $("#sa-next"),
+      slotsWrap: $("#sa-slots-wrap"),
+      toast:     document.getElementById("sa-toast")
+    };
+  }
+
+  _popularSelects() {
+    this.servicos.forEach(s => {
+      const o = document.createElement("option");
+      o.value = s.id;
+      o.textContent = `${s.nome} — ${this._brl(s.valor)}`;
+      this.els.selServico.appendChild(o);
+    });
+    this.medicos.forEach(m => {
+      const o = document.createElement("option");
+      o.value = m.id;
+      o.textContent = m.nome;
+      this.els.selMedico.appendChild(o);
+    });
+  }
+
+  _bindEventos() {
+    // Validação em tempo real (blur + input)
+    ["nome", "cpf", "whatsapp"].forEach(campo => {
+      const input = this.els[campo].querySelector("input");
+      input.addEventListener("blur",  () => this._validarCampo(campo));
+      input.addEventListener("input", () => {
+        if (campo === "cpf")      input.value = this._maskCPF(input.value);
+        if (campo === "whatsapp") input.value = this._maskTel(input.value);
+        // só revalida ao vivo se já marcado como inválido (UX menos agressiva)
+        if (this.els[campo].classList.contains("sa-invalid")) this._validarCampo(campo);
+      });
+    });
+
+    this.els.selServico.addEventListener("change", () => {
+      this.estado.servico = this.els.selServico.value;
+      this._atualizarValor();
+      this._validarCampo("servico");
+      this._resetSelecaoData();
+      this._renderCalendario();
+      this._renderSlots();
+    });
+
+    this.els.selMedico.addEventListener("change", () => {
+      this.estado.medico = this.els.selMedico.value;
+      this._validarCampo("medico");
+      this._resetSelecaoData();
+      this._renderCalendario();
+      this._renderSlots();
+    });
+
+    this.els.prev.addEventListener("click", () => this._navegarMes(-1));
+    this.els.next.addEventListener("click", () => this._navegarMes(1));
+  }
+
+  /* ===================================================================
+   *  VALIDAÇÃO
+   * =================================================================== */
+  _validadores() {
+    return {
+      nome:     (v) => v.trim().length >= 3 || "Informe o nome completo.",
+      cpf:      (v) => this._cpfValido(v) || "CPF inválido.",
+      whatsapp: (v) => v.replace(/\D/g, "").length >= 10 || "WhatsApp inválido.",
+      servico:  (v) => !!v || "Selecione um procedimento.",
+      medico:   (v) => !!v || "Selecione um profissional."
+    };
+  }
+
+  _validarCampo(campo) {
+    const valor = (campo === "servico")
+      ? this.els.selServico.value
+      : (campo === "medico")
+        ? this.els.selMedico.value
+        : this.els[campo].querySelector("input").value;
+
+    const regra = this._validadores()[campo];
+    const resultado = regra(valor);
+    const ok = resultado === true;
+    const wrap = this.els[campo];
+
+    wrap.classList.toggle("sa-valid", ok);
+    wrap.classList.toggle("sa-invalid", !ok);
+    wrap.querySelector(".sa-error-msg").textContent = ok ? "" : resultado;
+    return ok;
+  }
+
+  _validarFormCompleto(marcar = false) {
+    const campos = ["nome", "cpf", "whatsapp", "servico", "medico"];
+    let tudoOk = true;
+    campos.forEach(c => {
+      const valor = (c === "servico") ? this.els.selServico.value
+                  : (c === "medico")  ? this.els.selMedico.value
+                  : this.els[c].querySelector("input").value;
+      const ok = this._validadores()[c](valor) === true;
+      if (!ok) tudoOk = false;
+      if (marcar) this._validarCampo(c);
+    });
+    return tudoOk;
+  }
+
+  _cpfValido(cpfRaw) {
+    const cpf = (cpfRaw || "").replace(/\D/g, "");
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    let soma = 0;
+    for (let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
+    let d1 = (soma * 10) % 11; if (d1 === 10) d1 = 0;
+    if (d1 !== parseInt(cpf[9])) return false;
+    soma = 0;
+    for (let i = 0; i < 10; i++) soma += parseInt(cpf[i]) * (11 - i);
+    let d2 = (soma * 10) % 11; if (d2 === 10) d2 = 0;
+    return d2 === parseInt(cpf[10]);
+  }
+
+  /* ===================================================================
+   *  MÁSCARAS
+   * =================================================================== */
+  _maskCPF(v) {
+    return v.replace(/\D/g, "").slice(0, 11)
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  }
+  _maskTel(v) {
+    v = v.replace(/\D/g, "").slice(0, 11);
+    if (v.length <= 10)
+      return v.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{4})(\d)/, "$1-$2");
+    return v.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
+  }
+
+  /* ===================================================================
+   *  VALOR DINÂMICO
+   * =================================================================== */
+  _atualizarValor() {
+    const s = this.servicos.find(x => x.id === this.estado.servico);
+    this.els.valor.textContent = this._brl(s ? s.valor : 0);
+  }
+  _brl(n) {
+    return (n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  /* ===================================================================
+   *  CALENDÁRIO
+   * =================================================================== */
+  _prontoParaAgenda() {
+    return !!this.estado.servico && !!this.estado.medico;
+  }
+
+  _resetSelecaoData() {
+    this.estado.dataSelecionada = "";
+    this.estado.horaSelecionada = "";
+  }
+
+  _navegarMes(delta) {
+    const r = this.estado.calRef;
+    this.estado.calRef = new Date(r.getFullYear(), r.getMonth() + delta, 1);
+    this._renderCalendario();
+  }
+
+  _renderCalendario() {
+    const wrap = this.els.calWrap;
+    const grid = this.els.calGrid;
+    grid.innerHTML = "";
+
+    // Bloqueio visual enquanto não há serviço + médico
+    wrap.classList.toggle("sa-locked", !this._prontoParaAgenda());
+
+    const ref = this.estado.calRef;
+    const ano = ref.getFullYear();
+    const mes = ref.getMonth();
+
+    this.els.calLabel.textContent = ref.toLocaleDateString("pt-BR", {
+      month: "long", year: "numeric"
+    });
+
+    // Cabeçalho de dias da semana
+    ["D", "S", "T", "Q", "Q", "S", "S"].forEach(d => {
+      const c = document.createElement("div");
+      c.className = "sa-cal-dow";
+      c.textContent = d;
+      grid.appendChild(c);
+    });
+
+    const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+    const totalDias = new Date(ano, mes + 1, 0).getDate();
+
+    const medico = this.medicos.find(m => m.id === this.estado.medico);
+    const diasAtende = medico ? medico.diasAtendimento : [];
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    // Células vazias antes do dia 1
+    for (let i = 0; i < primeiroDiaSemana; i++) {
+      const e = document.createElement("div");
+      e.className = "sa-day sa-day-empty";
+      grid.appendChild(e);
+    }
+
+    for (let dia = 1; dia <= totalDias; dia++) {
+      const cel = document.createElement("div");
+      cel.className = "sa-day";
+      cel.textContent = dia;
+
+      const dataObj = new Date(ano, mes, dia);
+      const dow = dataObj.getDay();
+      const iso = this._toISO(dataObj);
+
+      const passado    = dataObj < hoje;
+      const naoAtende  = !diasAtende.includes(dow);
+
+      if (passado || naoAtende) {
+        cel.classList.add("sa-day-off");
+      } else {
+        cel.addEventListener("click", () => this._selecionarData(iso));
+      }
+
+      if (iso === this.estado.dataSelecionada) cel.classList.add("sa-day-selected");
+      grid.appendChild(cel);
+    }
+  }
+
+  _selecionarData(iso) {
+    this.estado.dataSelecionada = iso;
+    this.estado.horaSelecionada = "";
+    this._renderCalendario();
+    this._renderSlots();
+  }
+
+  /* ===================================================================
+   *  SLOTS / HORÁRIOS
+   * =================================================================== */
+  _renderSlots() {
+    const wrap = this.els.slotsWrap;
+    wrap.innerHTML = "";
+
+    if (!this._prontoParaAgenda()) {
+      wrap.innerHTML = `<div class="sa-hint">Selecione um procedimento e um profissional para liberar a agenda.</div>`;
+      return;
+    }
+    if (!this.estado.dataSelecionada) {
+      wrap.innerHTML = `<div class="sa-hint">Escolha uma data disponível no calendário.</div>`;
+      return;
+    }
+
+    const ocupados = this._horariosOcupados(this.estado.medico, this.estado.dataSelecionada);
+
+    let algum = false;
+    this.gradeHorarios.forEach(hora => {
+      const ocupado = ocupados.includes(hora);
+      if (!ocupado) algum = true;
+
+      const row = document.createElement("div");
+      row.className = "sa-slot-row";
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "sa-slot-btn";
+      btn.textContent = hora;
+      btn.disabled = ocupado;
+
+      const confirm = document.createElement("button");
+      confirm.type = "button";
+      confirm.className = "sa-confirm-btn";
+      confirm.textContent = "Confirmar ✓";
+
+      btn.addEventListener("click", () => {
+        // fecha qualquer outro slot aberto
+        wrap.querySelectorAll(".sa-slot-row.sa-slot-active")
+            .forEach(r => r.classList.remove("sa-slot-active"));
+        row.classList.add("sa-slot-active");
+        this.estado.horaSelecionada = hora;
+      });
+
+      confirm.addEventListener("click", () => this._submeter(hora));
+
+      row.appendChild(btn);
+      row.appendChild(confirm);
+      wrap.appendChild(row);
+    });
+
+    if (!algum) {
+      wrap.innerHTML = `<div class="sa-hint">Não há horários livres nesta data. Tente outro dia.</div>`;
+    }
+  }
+
+  _horariosOcupados(medicoId, dataIso) {
+    return this._lerAgendamentos()
+      .filter(a => a.medico === medicoId && a.data === dataIso)
+      .map(a => a.hora);
+  }
+
+  /* ===================================================================
+   *  PERSISTÊNCIA (MOCK localStorage)
+   * =================================================================== */
+  _lerAgendamentos() {
+    try {
+      return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || [];
+    } catch (_) {
+      return [];
+    }
+  }
+  _gravarAgendamentos(lista) {
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(lista));
+  }
+
+  /* ===================================================================
+   *  SUBMISSÃO
+   * =================================================================== */
+  async _submeter(hora) {
+    this.estado.horaSelecionada = hora;
+
+    // Bloqueia se houver campos inválidos
+    if (!this._validarFormCompleto(true)) {
+      this._toast("Verifique os campos destacados antes de confirmar.", true);
+      return;
+    }
+    if (!this.estado.dataSelecionada || !this.estado.horaSelecionada) {
+      this._toast("Selecione data e horário.", true);
+      return;
+    }
+
+    const servico = this.servicos.find(s => s.id === this.estado.servico);
+    const medico  = this.medicos.find(m => m.id === this.estado.medico);
+
+    const payload = {
+      id:           Date.now(),
+      nome:         this.els.nome.querySelector("input").value.trim(),
+      cpf:          this.els.cpf.querySelector("input").value.replace(/\D/g, ""),
+      whatsapp:     this.els.whatsapp.querySelector("input").value,
+      servico:      servico.nome,
+      servicoId:    servico.id,
+      valor:        servico.valor,
+      medico:       medico.nome,
+      medicoId:     medico.id,
+      data:         this.estado.dataSelecionada,
+      hora:         this.estado.horaSelecionada,
+      criadoEm:     new Date().toISOString()
+    };
+
+    try {
+      await this._salvarNoBanco(payload);
+
+      // Gera credenciais provisórias e dispara mensageria (mock)
+      const senhaProvisoria = this._gerarSenhaProvisoria();
+      await this._dispararWhatsApp(payload, senhaProvisoria);
+
+      this._toast(`Agendamento confirmado para ${this._formatarDataBR(payload.data)} às ${payload.hora}!`);
+      this._resetInterface();
+    } catch (err) {
+      console.error(err);
+      this._toast("Falha ao salvar. Tente novamente.", true);
+    }
+  }
+
+  /**
+   * Ponto único de persistência. Hoje usa localStorage como mock.
+   * Substituir pelo bloco fetch/axios quando o backend existir.
+   */
+  async _salvarNoBanco(payload) {
+    // ---------- INÍCIO: integração futura com backend ----------
+    //
+    // const resposta = await fetch("https://api.suaclinica.com/agendamentos", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+    //   body: JSON.stringify(payload)
+    // });
+    // if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
+    // const dados = await resposta.json();
+    // return dados;
+    //
+    // // Alternativa com axios:
+    // // const { data } = await axios.post("/agendamentos", payload);
+    // // return data;
+    //
+    // ---------- FIM: integração futura com backend ----------
+
+    // --- MOCK atual (localStorage) ---
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const lista = this._lerAgendamentos();
+        lista.push(payload);
+        this._gravarAgendamentos(lista);
+        resolve({ ok: true, id: payload.id });
+      }, 250); // simula latência de rede
+    });
+  }
+
+  /**
+   * Disparo de WhatsApp + notificação de cadastro automático.
+   * Estrutura preparada (mock) para a futura chamada ao webhook de automação.
+   */
+  async _dispararWhatsApp(payload, senhaProvisoria) {
+    // Monta o corpo da mensagem que será enviada ao paciente
+    const mensagem =
+      `Olá, ${payload.nome}! Seu agendamento foi confirmado:\n` +
+      `• Procedimento: ${payload.servico}\n` +
+      `• Profissional: ${payload.medico}\n` +
+      `• Data: ${this._formatarDataBR(payload.data)} às ${payload.hora}\n\n` +
+      `Criamos automaticamente seu acesso ao portal da clínica.\n` +
+      `Login: ${payload.cpf} (seu CPF)\n` +
+      `Senha provisória: ${senhaProvisoria}\n` +
+      `Por segurança, a troca de senha será obrigatória no primeiro acesso.`;
+
+    // ---------- INÍCIO: integração futura com API de WhatsApp ----------
+    //
+    // await fetch("https://webhook.automacao.com/whatsapp/enviar", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({
+    //     telefone: payload.whatsapp,
+    //     mensagem: mensagem,
+    //     agendamentoId: payload.id
+    //   })
+    // });
+    //
+    // // Geração da conta no portal (backend cria usuário com senha provisória
+    // //  + flag trocarSenhaNoPrimeiroAcesso = true):
+    // // await fetch("https://api.suaclinica.com/usuarios", {
+    // //   method: "POST",
+    // //   body: JSON.stringify({
+    // //     cpf: payload.cpf, senhaProvisoria, forcarTroca: true
+    // //   })
+    // // });
+    //
+    // ---------- FIM: integração futura com API de WhatsApp ----------
+
+    // --- MOCK atual: apenas registra no console ---
+    console.log("[WhatsApp MOCK] Mensagem que seria enviada:\n", mensagem);
+    return Promise.resolve({ enviado: true });
+  }
+
+  _gerarSenhaProvisoria() {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let s = "";
+    for (let i = 0; i < this.SENHA_PROVISORIA_LEN; i++) {
+      s += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return s;
+  }
+
+  /* ===================================================================
+   *  RESET / UTILITÁRIOS
+   * =================================================================== */
+  _resetInterface() {
+    // limpa inputs
+    ["nome", "cpf", "whatsapp"].forEach(c => {
+      const w = this.els[c];
+      w.querySelector("input").value = "";
+      w.classList.remove("sa-valid", "sa-invalid");
+      w.querySelector(".sa-error-msg").textContent = "";
+    });
+    this.els.selServico.value = "";
+    this.els.selMedico.value = "";
+    ["servico", "medico"].forEach(c => {
+      this.els[c].classList.remove("sa-valid", "sa-invalid");
+      this.els[c].querySelector(".sa-error-msg").textContent = "";
+    });
+
+    this.estado.servico = "";
+    this.estado.medico = "";
+    this.estado.calRef = new Date();
+    this._resetSelecaoData();
+
+    this._atualizarValor();
+    this._renderCalendario();
+    this._renderSlots();
+  }
+
+  _toISO(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${dd}`;
+  }
+  _formatarDataBR(iso) {
+    const [y, m, d] = iso.split("-");
+    return `${d}/${m}/${y}`;
+  }
+
+  _toast(msg, erro = false) {
+    const t = this.els.toast;
+    t.textContent = msg;
+    t.style.background = erro ? "var(--sa-erro-borda)" : "var(--sa-ok-borda)";
+    t.classList.add("sa-toast-show");
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => t.classList.remove("sa-toast-show"), 4200);
+  }
+}
+
+// Inicialização
+document.addEventListener("DOMContentLoaded", () => {
+  new SistemaAgendamentoUI("sa-app");
+});
+</script>
+</body>
+</html>

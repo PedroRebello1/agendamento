@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamento Online</title>
+    <style>
+        .agp-page,
+        .agp-page * {
+            box-sizing: border-box;
+        }
+
+        .agp-page {
+            --agp-azul-escuro: #0b192c;
+            --agp-roxo: #6f3cc3;
+            --agp-roxo-escuro: #52279d;
+            --agp-prata: #b8c0cc;
+            --agp-prata-claro: #eef1f5;
+            --agp-branco: #ffffff;
+            --agp-fundo: #f5f7fb;
+            --agp-texto: #172033;
+            --agp-texto-suave: #687386;
+            --agp-borda: #d9dee8;
+            --agp-sucesso: #188052;
+            --agp-sucesso-bg: #eaf7f1;
+            --agp-erro: #c83349;
+            --agp-erro-bg: #fff0f2;
+            --agp-sombra: 0 18px 50px rgba(11, 25, 44, 0.13);
+            min-height: 100vh;
+            margin: 0;
+            padding: 32px;
+            color: var(--agp-texto);
+            background:
+                linear-gradient(135deg, rgba(11, 25, 44, 0.08), rgba(111, 60, 195, 0.08)),
+                var(--agp-fundo);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .agp-widget {
+            width: min(1120px, 100%);
+            margin: 0 auto;
+            overflow: hidden;
+            border: 1px solid rgba(184, 192, 204, 0.7);
+            border-radius: 8px;
+            background: var(--agp-branco);
+            box-shadow: var(--agp-sombra);
+        }
+
+        .agp-topo {
+            padding: 28px;
+            border-bottom: 1px solid var(--agp-borda);
+            background: linear-gradient(180deg, var(--agp-branco), #fbfcff);
+        }
+
+        .agp-cabecalho {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .agp-titulo {
+            margin: 0 0 8px;
+            color: var(--agp-azul-escuro);
+            font-size: clamp(1.45rem, 3vw, 2.1rem);
+            line-height: 1.1;
+        }
+
+        .agp-subtitulo {
+            max-width: 620px;
+            margin: 0;
+            color: var(--agp-texto-suave);
+            font-size: 0.98rem;
+            line-height: 1.5;
+        }
+
+        .agp-valor {
+            min-width: 220px;
+            padding: 14px 16px;
+            border: 1px solid rgba(111, 60, 195, 0.22);
+            border-radius: 8px;
+            background: rgba(111, 60, 195, 0.08);
+            color: var(--agp-azul-escuro);
+            text-align: right;
+        }
+
+        .agp-valor-label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--agp-texto-suave);
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .agp-valor-total {
+            display: block;
+            font-size: 1.32rem;
+            font-weight: 800;
+        }
+
+        .agp-form {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .agp-campo {
+            min-width: 0;
+        }
+
+        .agp-campo--span-2 {
+            grid-column: span 2;
+        }
+
+        .agp-campo--span-3 {
+            grid-column: span 3;
+        }
+
+        .agp-label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--agp-azul-escuro);
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+
+        .agp-input,
+        .agp-select {
+            width: 100%;
+            min-height: 46px;
+            padding: 11px 12px;
+            border: 1px solid var(--agp-borda);
+            border-radius: 8px;
+            outline: 0;
+            background: var(--agp-branco);
+            color: var(--agp-texto);
+            font: inherit;
+            transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+        }
+
+        .agp-input:focus,
+        .agp-select:focus {
+            border-color: var(--agp-roxo);
+            box-shadow: 0 0 0 3px rgba(111, 60, 195, 0.15);
+        }
+
+        .agp-campo.is-valid .agp-input,
+        .agp-campo.is-valid .agp-select {
+            border-color: var(--agp-sucesso);
+            background: var(--agp-sucesso-bg);
+        }
+
+        .agp-campo.is-invalid .agp-input,
+        .agp-campo.is-invalid .agp-select {
+            border-color: var(--agp-erro);
+            background: var(--agp-erro-bg);
+        }
+
+        .agp-erro {
+            min-height: 18px;
+            margin: 6px 0 0;
+            color: var(--agp-erro);
+            font-size: 0.78rem;
+            line-height: 1.25;
+        }
+
+        .agp-campo:not(.is-invalid) .agp-erro {
+            visibility: hidden;
+        }
+
+        .agp-corpo {
+            display: grid;
+            grid-template-columns: minmax(360px, 0.95fr) minmax(360px, 1.05fr);
+            min-height: 520px;
+        }
+
+        .agp-calendario,
+        .agp-horarios {
+            padding: 28px;
+        }
+
+        .agp-calendario {
+            border-right: 1px solid var(--agp-borda);
+        }
+
+        .agp-secao-topo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .agp-secao-titulo {
+            margin: 0;
+            color: var(--agp-azul-escuro);
+            font-size: 1.05rem;
+        }
+
+        .agp-mes {
+            margin: 3px 0 0;
+            color: var(--agp-texto-suave);
+            font-size: 0.9rem;
+        }
+
+        .agp-navegacao {
+            display: flex;
+            gap: 8px;
+        }
+
+        .agp-nav-btn,
+        .agp-acao-btn,
+        .agp-slot-btn,
+        .agp-confirmar-btn {
+            min-height: 40px;
+            border-radius: 8px;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 180ms ease, background-color 180ms ease, color 180ms ease, border-color 180ms ease, opacity 180ms ease;
+        }
+
+        .agp-nav-btn {
+            width: 42px;
+            border: 1px solid var(--agp-borda);
+            background: var(--agp-branco);
+            color: var(--agp-azul-escuro);
+            font-size: 1.1rem;
+        }
+
+        .agp-nav-btn:hover:not(:disabled),
+        .agp-acao-btn:hover:not(:disabled) {
+            border-color: var(--agp-roxo);
+            color: var(--agp-roxo);
+        }
+
+        .agp-nav-btn:disabled,
+        .agp-acao-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .agp-calendario-shell {
+            position: relative;
+        }
+
+        .agp-calendario-shell.is-locked .agp-grid-dias {
+            pointer-events: none;
+        }
+
+        .agp-bloqueio {
+            display: none;
+            margin-bottom: 14px;
+            padding: 12px 14px;
+            border: 1px solid rgba(111, 60, 195, 0.22);
+            border-radius: 8px;
+            background: rgba(111, 60, 195, 0.08);
+            color: var(--agp-azul-escuro);
+            font-size: 0.88rem;
+            line-height: 1.4;
+        }
+
+        .agp-calendario-shell.is-locked .agp-bloqueio {
+            display: block;
+        }
+
+        .agp-dias-semana,
+        .agp-grid-dias {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 7px;
+        }
+
+        .agp-dias-semana {
+            margin-bottom: 8px;
+            color: var(--agp-texto-suave);
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .agp-dia {
+            position: relative;
+            aspect-ratio: 1;
+            min-width: 0;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            background: var(--agp-branco);
+            color: var(--agp-azul-escuro);
+            font: inherit;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease, opacity 180ms ease;
+        }
+
+        .agp-dia:hover:not(:disabled) {
+            border-color: rgba(111, 60, 195, 0.45);
+            background: rgba(111, 60, 195, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .agp-dia.is-hoje {
+            border-color: var(--agp-prata);
+        }
+
+        .agp-dia.is-selecionado {
+            border-color: var(--agp-roxo);
+            background: var(--agp-roxo);
+            color: var(--agp-branco);
+        }
+
+        .agp-dia:disabled {
+            opacity: 0.42;
+            cursor: not-allowed;
+            color: var(--agp-texto-suave);
+            text-decoration: line-through;
+        }
+
+        .agp-dia-vazio {
+            aspect-ratio: 1;
+        }
+
+        .agp-legenda {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 16px;
+            margin-top: 18px;
+            color: var(--agp-texto-suave);
+            font-size: 0.82rem;
+        }
+
+        .agp-legenda-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .agp-legenda-marcador {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            background: var(--agp-roxo);
+        }
+
+        .agp-legenda-marcador--bloqueado {
+            background: var(--agp-prata);
+            opacity: 0.6;
+        }
+
+        .agp-horarios {
+            display: flex;
+            flex-direction: column;
+            background: #fbfcff;
+        }
+
+        .agp-data-selecionada {
+            margin: 0;
+            color: var(--agp-texto-suave);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .agp-slots {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            gap: 11px;
+            min-height: 290px;
+            max-height: 390px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .agp-slot-linha {
+            display: flex;
+            align-items: stretch;
+            gap: 10px;
+            min-height: 48px;
+        }
+
+        .agp-slot-btn {
+            flex: 1 1 auto;
+            min-width: 0;
+            border: 1px solid rgba(111, 60, 195, 0.55);
+            background: var(--agp-branco);
+            color: var(--agp-roxo);
+        }
+
+        .agp-slot-linha.is-active .agp-slot-btn {
+            flex: 0 1 46%;
+            border-color: var(--agp-azul-escuro);
+            background: var(--agp-azul-escuro);
+            color: var(--agp-branco);
+        }
+
+        .agp-slot-btn:disabled {
+            border-color: var(--agp-borda);
+            background: var(--agp-prata-claro);
+            color: var(--agp-texto-suave);
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+
+        .agp-confirmar-btn {
+            flex: 0 0 0;
+            width: 0;
+            min-width: 0;
+            padding: 0;
+            overflow: hidden;
+            border: 0;
+            background: var(--agp-roxo);
+            color: var(--agp-branco);
+            opacity: 0;
+            white-space: nowrap;
+        }
+
+        .agp-slot-linha.is-active .agp-confirmar-btn {
+            flex: 1 1 54%;
+            width: auto;
+            padding: 0 18px;
+            opacity: 1;
+            animation: agpSlideIn 220ms ease both;
+        }
+
+        .agp-confirmar-btn:hover {
+            background: var(--agp-roxo-escuro);
+        }
+
+        @keyframes agpSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .agp-estado {
+            display: grid;
+            min-height: 190px;
+            place-items: center;
+            padding: 24px;
+            border: 1px dashed var(--agp-borda);
+            border-radius: 8px;
+            color: var(--agp-texto-suave);
+            text-align: center;
+            line-height: 1.45;
+        }
+
+        .agp-rodape-acoes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid var(--agp-borda);
+        }
+
+        .agp-status {
+            margin: 0;
+            color: var(--agp-texto-suave);
+            font-size: 0.86rem;
+            line-height: 1.4;
+        }
+
+        .agp-acao-btn {
+            flex: 0 0 auto;
+            padding: 0 16px;
+            border: 1px solid var(--agp-borda);
+            background: var(--agp-branco);
+            color: var(--agp-azul-escuro);
+        }
+
+        @media (max-width: 900px) {
+            .agp-page {
+                padding: 18px;
+            }
+
+            .agp-cabecalho {
+                flex-direction: column;
+            }
+
+            .agp-valor {
+                width: 100%;
+                text-align: left;
+            }
+
+            .agp-form {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .agp-campo--span-2,
+            .agp-campo--span-3 {
+                grid-column: span 1;
+            }
+
+            .agp-corpo {
+                grid-template-columns: 1fr;
+            }
+
+            .agp-calendario {
+                border-right: 0;
+                border-bottom: 1px solid var(--agp-borda);
+            }
+        }
+
+        @media (max-width: 560px) {
+            .agp-page {
+                padding: 0;
+            }
+
+            .agp-widget {
+                min-height: 100vh;
+                border: 0;
+                border-radius: 0;
+            }
+
+            .agp-topo,
+            .agp-calendario,
+            .agp-horarios {
+                padding: 20px;
+            }
+
+            .agp-form {
+                grid-template-columns: 1fr;
+            }
+
+            .agp-secao-topo,
+            .agp-rodape-acoes {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .agp-navegacao {
+                justify-content: space-between;
+            }
+
+            .agp-nav-btn {
+                flex: 1;
+            }
+
+            .agp-slot-linha {
+                min-height: 46px;
+            }
+        }
+    </style>
+</head>
+<body class="agp-page">
+    <main class="agp-widget" id="agp-widget" aria-labelledby="agp-titulo">
+        <section class="agp-topo" aria-label="Dados do agendamento">
+            <div class="agp-cabecalho">
+                <div>
+                    <h1 class="agp-titulo" id="agp-titulo">Agendamento online</h1>
+                    <p class="agp-subtitulo">Informe seus dados, escolha o procedimento e selecione uma profissional para liberar o calendario de disponibilidade.</p>
+                </div>
+                <div class="agp-valor" aria-live="polite">
+                    <span class="agp-valor-label">Valor estimado</span>
+                    <strong class="agp-valor-total" id="agp-valor-total">R$ 0,00</strong>
+                </div>
+            </div>
+
+            <form class="agp-form" id="agp-form" novalidate>
+                <div class="agp-campo agp-campo--span-2" data-field="nome">
+                    <label class="agp-label" for="agp-nome">Nome completo</label>
+                    <input class="agp-input" id="agp-nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome completo" required>
+                    <p class="agp-erro" id="agp-nome-erro"></p>
+                </div>
+
+                <div class="agp-campo agp-campo--span-2" data-field="whatsapp">
+                    <label class="agp-label" for="agp-whatsapp">WhatsApp</label>
+                    <input class="agp-input" id="agp-whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000" required>
+                    <p class="agp-erro" id="agp-whatsapp-erro"></p>
+                </div>
+
+                <div class="agp-campo agp-campo--span-2" data-field="cpf">
+                    <label class="agp-label" for="agp-cpf">CPF</label>
+                    <input class="agp-input" id="agp-cpf" name="cpf" type="text" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" required>
+                    <p class="agp-erro" id="agp-cpf-erro"></p>
+                </div>
+
+                <div class="agp-campo agp-campo--span-3" data-field="servico">
+                    <label class="agp-label" for="agp-servico">Procedimento</label>
+                    <select class="agp-select" id="agp-servico" name="servico" required>
+                        <option value="">Selecione um procedimento</option>
+                    </select>
+                    <p class="agp-erro" id="agp-servico-erro"></p>
+                </div>
+
+                <div class="agp-campo agp-campo--span-3" data-field="profissional">
+                    <label class="agp-label" for="agp-profissional">Profissional</label>
+                    <select class="agp-select" id="agp-profissional" name="profissional" required>
+                        <option value="">Selecione uma profissional</option>
+                    </select>
+                    <p class="agp-erro" id="agp-profissional-erro"></p>
+                </div>
+            </form>
+        </section>
+
+        <section class="agp-corpo" aria-label="Calendario e horarios">
+            <div class="agp-calendario">
+                <div class="agp-secao-topo">
+                    <div>
+                        <h2 class="agp-secao-titulo">Calendario</h2>
+                        <p class="agp-mes" id="agp-mes-atual"></p>
+                    </div>
+                    <div class="agp-navegacao" aria-label="Navegacao do calendario">
+                        <button class="agp-nav-btn" id="agp-mes-anterior" type="button" aria-label="Mes anterior">&lt;</button>
+                        <button class="agp-nav-btn" id="agp-proximo-mes" type="button" aria-label="Proximo mes">&gt;</button>
+                    </div>
+                </div>
+
+                <div class="agp-calendario-shell is-locked" id="agp-calendario-shell">
+                    <div class="agp-bloqueio" id="agp-bloqueio-calendario">Selecione um procedimento e uma profissional para consultar os dias disponiveis.</div>
+
+                    <div class="agp-dias-semana" aria-hidden="true">
+                        <span>Dom</span>
+                        <span>Seg</span>
+                        <span>Ter</span>
+                        <span>Qua</span>
+                        <span>Qui</span>
+                        <span>Sex</span>
+                        <span>Sab</span>
+                    </div>
+                    <div class="agp-grid-dias" id="agp-grid-dias" role="grid" aria-label="Dias do mes"></div>
+                </div>
+
+                <div class="agp-legenda" aria-label="Legenda do calendario">
+                    <span class="agp-legenda-item"><span class="agp-legenda-marcador"></span>Disponivel</span>
+                    <span class="agp-legenda-item"><span class="agp-legenda-marcador agp-legenda-marcador--bloqueado"></span>Bloqueado</span>
+                </div>
+            </div>
+
+            <div class="agp-horarios">
+                <div class="agp-secao-topo">
+                    <div>
+                        <h2 class="agp-secao-titulo">Horarios</h2>
+                        <p class="agp-data-selecionada" id="agp-data-selecionada">Nenhuma data selecionada.</p>
+                    </div>
+                </div>
+
+                <div class="agp-slots" id="agp-slots" aria-live="polite">
+                    <div class="agp-estado">Preencha procedimento e profissional para liberar o calendario.</div>
+                </div>
+
+                <div class="agp-rodape-acoes">
+                    <p class="agp-status" id="agp-status">O horario escolhido sera confirmado no mesmo clique.</p>
+                    <button class="agp-acao-btn" id="agp-limpar" type="button">Limpar dados</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        class SistemaAgendamentoUI {
+            constructor(root) {
+                this.root = root;
+                this.storageKey = 'agp_agendamentos_mock';
+
+                this.servicos = [
+                    { id: 'harmonizacao-facial', nome: 'Harmonizacao facial', valor: 1500 },
+                    { id: 'toxina-botulinica', nome: 'Toxina botulinica', valor: 1200 },
+                    { id: 'preenchimento-labial', nome: 'Preenchimento labial', valor: 950 },
+                    { id: 'limpeza-de-pele', nome: 'Limpeza de pele premium', valor: 280 }
+                ];
+
+                this.profissionais = [
+                    {
+                        id: 'dra-livia-martins',
+                        nome: 'Dra. Livia Martins',
+                        diasAtendimento: [1, 3, 5],
+                        slots: ['08:00', '09:00', '10:00', '11:00', '13:30', '14:30', '15:30']
+                    },
+                    {
+                        id: 'dra-marina-souza',
+                        nome: 'Dra. Marina Souza',
+                        diasAtendimento: [2, 4],
+                        slots: ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00']
+                    },
+                    {
+                        id: 'dra-renata-costa',
+                        nome: 'Dra. Renata Costa',
+                        diasAtendimento: [1, 2, 4],
+                        slots: ['08:30', '09:30', '10:30', '13:00', '14:00', '15:00', '16:00']
+                    }
+                ];
+
+                this.meses = [
+                    'Janeiro', 'Fevereiro', 'Marco', 'Abril', 'Maio', 'Junho',
+                    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+                ];
+                this.dias = ['Domingo', 'Segunda-feira', 'Terca-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sabado'];
+
+                const hoje = this.normalizarData(new Date());
+                this.estado = {
+                    dataBase: hoje,
+                    mes: hoje.getMonth(),
+                    ano: hoje.getFullYear(),
+                    dataSelecionada: null,
+                    horarioSelecionado: null
+                };
+
+                this.refs = this.mapearElementos();
+                this.inicializar();
+            }
+
+            mapearElementos() {
+                return {
+                    form: this.root.querySelector('#agp-form'),
+                    nome: this.root.querySelector('#agp-nome'),
+                    whatsapp: this.root.querySelector('#agp-whatsapp'),
+                    cpf: this.root.querySelector('#agp-cpf'),
+                    servico: this.root.querySelector('#agp-servico'),
+                    profissional: this.root.querySelector('#agp-profissional'),
+                    valor: this.root.querySelector('#agp-valor-total'),
+                    mesAtual: this.root.querySelector('#agp-mes-atual'),
+                    btnAnterior: this.root.querySelector('#agp-mes-anterior'),
+                    btnProximo: this.root.querySelector('#agp-proximo-mes'),
+                    calendarioShell: this.root.querySelector('#agp-calendario-shell'),
+                    bloqueioCalendario: this.root.querySelector('#agp-bloqueio-calendario'),
+                    gridDias: this.root.querySelector('#agp-grid-dias'),
+                    dataSelecionada: this.root.querySelector('#agp-data-selecionada'),
+                    slots: this.root.querySelector('#agp-slots'),
+                    status: this.root.querySelector('#agp-status'),
+                    limpar: this.root.querySelector('#agp-limpar')
+                };
+            }
+
+            inicializar() {
+                this.preencherSelects();
+                this.vincularEventos();
+                this.atualizarValorEstimado();
+                this.atualizarBloqueioAgenda();
+                this.renderizarCalendario();
+            }
+
+            preencherSelects() {
+                const fragmentServicos = document.createDocumentFragment();
+                this.servicos.forEach((servico) => {
+                    const option = document.createElement('option');
+                    option.value = servico.id;
+                    option.textContent = `${servico.nome} - ${this.formatarMoeda(servico.valor)}`;
+                    fragmentServicos.appendChild(option);
+                });
+                this.refs.servico.appendChild(fragmentServicos);
+
+                const fragmentProfissionais = document.createDocumentFragment();
+                this.profissionais.forEach((profissional) => {
+                    const option = document.createElement('option');
+                    option.value = profissional.id;
+                    option.textContent = `${profissional.nome} (${this.descreverDiasAtendimento(profissional.diasAtendimento)})`;
+                    fragmentProfissionais.appendChild(option);
+                });
+                this.refs.profissional.appendChild(fragmentProfissionais);
+            }
+
+            vincularEventos() {
+                this.refs.form.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    this.finalizarAgendamento();
+                });
+
+                this.refs.btnAnterior.addEventListener('click', () => this.mudarMes(-1));
+                this.refs.btnProximo.addEventListener('click', () => this.mudarMes(1));
+                this.refs.limpar.addEventListener('click', () => this.resetarTudo());
+
+                this.refs.servico.addEventListener('change', () => {
+                    this.validarCampo(this.refs.servico);
+                    this.atualizarValorEstimado();
+                    this.resetarSelecaoAgenda();
+                    this.atualizarBloqueioAgenda();
+                    this.renderizarCalendario();
+                });
+
+                this.refs.profissional.addEventListener('change', () => {
+                    this.validarCampo(this.refs.profissional);
+                    this.resetarSelecaoAgenda();
+                    this.atualizarBloqueioAgenda();
+                    this.renderizarCalendario();
+                });
+
+                [this.refs.nome, this.refs.whatsapp, this.refs.cpf, this.refs.servico, this.refs.profissional].forEach((campo) => {
+                    campo.addEventListener('blur', () => this.validarCampo(campo));
+                    campo.addEventListener('input', () => {
+                        if (campo === this.refs.whatsapp) {
+                            campo.value = this.aplicarMascaraWhatsApp(campo.value);
+                        }
+
+                        if (campo === this.refs.cpf) {
+                            campo.value = this.aplicarMascaraCpf(campo.value);
+                        }
+
+                        this.validarCampo(campo);
+                    });
+                });
+            }
+
+            mudarMes(delta) {
+                const novaData = new Date(this.estado.ano, this.estado.mes + delta, 1);
+                this.estado.mes = novaData.getMonth();
+                this.estado.ano = novaData.getFullYear();
+                this.renderizarCalendario();
+            }
+
+            atualizarValorEstimado() {
+                const servico = this.obterServicoSelecionado();
+                this.refs.valor.textContent = servico ? this.formatarMoeda(servico.valor) : 'R$ 0,00';
+            }
+
+            atualizarBloqueioAgenda() {
+                const bloqueado = !this.podeConsultarAgenda();
+                this.refs.calendarioShell.classList.toggle('is-locked', bloqueado);
+                this.refs.bloqueioCalendario.textContent = bloqueado
+                    ? 'Selecione um procedimento e uma profissional para consultar os dias disponiveis.'
+                    : 'Datas no passado e dias sem atendimento da profissional ficam bloqueados.';
+
+                if (bloqueado) {
+                    this.refs.slots.innerHTML = '<div class="agp-estado">Preencha procedimento e profissional para liberar o calendario.</div>';
+                    this.refs.dataSelecionada.textContent = 'Nenhuma data selecionada.';
+                }
+            }
+
+            podeConsultarAgenda() {
+                return Boolean(this.refs.servico.value && this.refs.profissional.value);
+            }
+
+            renderizarCalendario() {
+                this.refs.mesAtual.textContent = `${this.meses[this.estado.mes]} ${this.estado.ano}`;
+                this.refs.gridDias.innerHTML = '';
+
+                const primeiroDia = new Date(this.estado.ano, this.estado.mes, 1).getDay();
+                const totalDias = new Date(this.estado.ano, this.estado.mes + 1, 0).getDate();
+                const primeiroMesAtual = new Date(this.estado.dataBase.getFullYear(), this.estado.dataBase.getMonth(), 1);
+                const primeiroMesRenderizado = new Date(this.estado.ano, this.estado.mes, 1);
+                const profissional = this.obterProfissionalSelecionada();
+                const agendaBloqueada = !this.podeConsultarAgenda();
+
+                this.refs.btnAnterior.disabled = agendaBloqueada || primeiroMesRenderizado <= primeiroMesAtual;
+                this.refs.btnProximo.disabled = agendaBloqueada;
+
+                for (let i = 0; i < primeiroDia; i += 1) {
+                    const vazio = document.createElement('span');
+                    vazio.className = 'agp-dia-vazio';
+                    this.refs.gridDias.appendChild(vazio);
+                }
+
+                for (let dia = 1; dia <= totalDias; dia += 1) {
+                    const data = new Date(this.estado.ano, this.estado.mes, dia);
+                    const dataNormalizada = this.normalizarData(data);
+                    const iso = this.formatarDataIso(dataNormalizada);
+                    const botao = document.createElement('button');
+                    botao.className = 'agp-dia';
+                    botao.type = 'button';
+                    botao.textContent = String(dia);
+                    botao.setAttribute('role', 'gridcell');
+                    botao.setAttribute('aria-label', this.formatarDataLonga(dataNormalizada));
+
+                    const ehPassado = dataNormalizada < this.estado.dataBase;
+                    const foraAgendaProfissional = profissional && !profissional.diasAtendimento.includes(dataNormalizada.getDay());
+                    const desabilitado = agendaBloqueada || ehPassado || foraAgendaProfissional;
+
+                    if (this.datasIguais(dataNormalizada, this.estado.dataBase)) {
+                        botao.classList.add('is-hoje');
+                    }
+
+                    if (this.estado.dataSelecionada === iso) {
+                        botao.classList.add('is-selecionado');
+                    }
+
+                    if (desabilitado) {
+                        botao.disabled = true;
+                        botao.title = this.obterMotivoBloqueio({ agendaBloqueada, ehPassado, foraAgendaProfissional });
+                    } else {
+                        botao.addEventListener('click', () => this.selecionarData(dataNormalizada));
+                    }
+
+                    this.refs.gridDias.appendChild(botao);
+                }
+            }
+
+            obterMotivoBloqueio({ agendaBloqueada, ehPassado, foraAgendaProfissional }) {
+                if (agendaBloqueada) return 'Selecione procedimento e profissional.';
+                if (ehPassado) return 'Data no passado.';
+                if (foraAgendaProfissional) return 'Profissional nao atende neste dia.';
+                return 'Data indisponivel.';
+            }
+
+            selecionarData(data) {
+                if (!this.validarFormularioTopo()) {
+                    this.refs.status.textContent = 'Revise os campos destacados antes de escolher um horario.';
+                    return;
+                }
+
+                this.estado.dataSelecionada = this.formatarDataIso(data);
+                this.estado.horarioSelecionado = null;
+                this.refs.dataSelecionada.textContent = this.formatarDataLonga(data);
+                this.refs.status.textContent = 'Escolha um horario e confirme na mesma linha.';
+                this.renderizarCalendario();
+                this.renderizarHorarios();
+            }
+
+            renderizarHorarios() {
+                const profissional = this.obterProfissionalSelecionada();
+                if (!profissional || !this.estado.dataSelecionada) {
+                    this.refs.slots.innerHTML = '<div class="agp-estado">Escolha uma data valida para ver os horarios.</div>';
+                    return;
+                }
+
+                const agendamentos = this.lerAgendamentos();
+                const horariosOcupados = agendamentos
+                    .filter((item) => item.medicoId === profissional.id && item.data === this.estado.dataSelecionada)
+                    .map((item) => item.hora);
+
+                this.refs.slots.innerHTML = '';
+
+                profissional.slots.forEach((hora) => {
+                    const ocupado = horariosOcupados.includes(hora);
+                    const linha = document.createElement('div');
+                    linha.className = 'agp-slot-linha';
+
+                    const botaoHora = document.createElement('button');
+                    botaoHora.className = 'agp-slot-btn';
+                    botaoHora.type = 'button';
+                    botaoHora.textContent = ocupado ? `${hora} indisponivel` : hora;
+                    botaoHora.disabled = ocupado;
+
+                    const botaoConfirmar = document.createElement('button');
+                    botaoConfirmar.className = 'agp-confirmar-btn';
+                    botaoConfirmar.type = 'button';
+                    botaoConfirmar.textContent = 'Confirmar';
+
+                    if (!ocupado) {
+                        botaoHora.addEventListener('click', () => this.ativarHorario(linha, hora));
+                        botaoConfirmar.addEventListener('click', () => this.finalizarAgendamento());
+                    }
+
+                    linha.append(botaoHora, botaoConfirmar);
+                    this.refs.slots.appendChild(linha);
+                });
+
+                if (!profissional.slots.length) {
+                    this.refs.slots.innerHTML = '<div class="agp-estado">Nao ha grade de horarios para esta profissional.</div>';
+                }
+            }
+
+            ativarHorario(linha, hora) {
+                this.refs.slots.querySelectorAll('.agp-slot-linha.is-active').forEach((item) => {
+                    item.classList.remove('is-active');
+                });
+                linha.classList.add('is-active');
+                this.estado.horarioSelecionado = hora;
+                this.refs.status.textContent = `Horario selecionado: ${hora}.`;
+            }
+
+            async finalizarAgendamento() {
+                if (!this.validarFormularioTopo() || !this.estado.dataSelecionada || !this.estado.horarioSelecionado) {
+                    this.refs.status.textContent = 'Preencha os campos obrigatorios, selecione data e horario.';
+                    alert('Revise os dados obrigatorios antes de confirmar.');
+                    return;
+                }
+
+                const payload = this.criarPayloadAgendamento();
+
+                try {
+                    await this.salvarAgendamento(payload);
+                    await this.notificarWhatsApp(payload);
+                    alert('Agendamento confirmado com sucesso.');
+                    this.resetarTudo();
+                } catch (erro) {
+                    console.error('Erro ao finalizar agendamento:', erro);
+                    this.refs.status.textContent = 'Nao foi possivel confirmar agora. Tente novamente.';
+                    alert('Nao foi possivel salvar o agendamento. Tente novamente.');
+                }
+            }
+
+            criarPayloadAgendamento() {
+                const servico = this.obterServicoSelecionado();
+                const profissional = this.obterProfissionalSelecionada();
+                const senhaProvisoria = this.gerarSenhaProvisoria();
+
+                return {
+                    id: String(Date.now()),
+                    nome: this.refs.nome.value.trim(),
+                    whatsapp: this.refs.whatsapp.value.trim(),
+                    cpf: this.refs.cpf.value.trim(),
+                    servicoId: servico.id,
+                    servicoNome: servico.nome,
+                    servicoValor: servico.valor,
+                    medicoId: profissional.id,
+                    medicoNome: profissional.nome,
+                    data: this.estado.dataSelecionada,
+                    hora: this.estado.horarioSelecionado,
+                    criadoEm: new Date().toISOString(),
+                    portal: {
+                        login: this.apenasDigitos(this.refs.cpf.value),
+                        senhaProvisoria,
+                        trocarSenhaNoPrimeiroAcesso: true
+                    }
+                };
+            }
+
+            async salvarAgendamento(payload) {
+                const agendamentos = this.lerAgendamentos();
+                const conflito = agendamentos.some((item) => (
+                    item.medicoId === payload.medicoId &&
+                    item.data === payload.data &&
+                    item.hora === payload.hora
+                ));
+
+                if (conflito) {
+                    throw new Error('Horario indisponivel.');
+                }
+
+                agendamentos.push(payload);
+                localStorage.setItem(this.storageKey, JSON.stringify(agendamentos));
+
+                /*
+                Futuro backend:
+                const resposta = await fetch('/api/agendamentos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!resposta.ok) {
+                    throw new Error('Falha ao persistir no banco de dados.');
+                }
+
+                return await resposta.json();
+
+                Com axios, a mesma fronteira ficaria isolada aqui:
+                const { data } = await axios.post('/api/agendamentos', payload);
+                return data;
+                */
+
+                return Promise.resolve({ ok: true, id: payload.id });
+            }
+
+            async notificarWhatsApp(payload) {
+                const mensagem = this.montarMensagemWhatsApp(payload);
+
+                await this.enviarWebhookWhatsApp({
+                    destino: payload.whatsapp,
+                    mensagem,
+                    agendamentoId: payload.id
+                });
+            }
+
+            montarMensagemWhatsApp(payload) {
+                const dataFormatada = this.formatarDataIsoParaBr(payload.data);
+                return [
+                    `Confirmacao de agendamento: ${payload.servicoNome}`,
+                    `Data: ${dataFormatada} as ${payload.hora}`,
+                    `Profissional: ${payload.medicoNome}`,
+                    'Um cadastro automatico foi gerado no portal da clinica.',
+                    `Login de acesso: CPF ${payload.cpf}`,
+                    `Senha provisoria: ${payload.portal.senhaProvisoria}`,
+                    'A troca da senha sera obrigatoria no primeiro acesso.'
+                ].join('\n');
+            }
+
+            async enviarWebhookWhatsApp(dados) {
+                /*
+                Futuro webhook de automacao:
+                await fetch('/api/webhooks/whatsapp/agendamento-confirmado', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                Esta funcao deve ser chamada apenas depois da confirmacao do banco.
+                O payload ja contem confirmacao do agendamento, aviso de cadastro
+                automatico no portal, CPF como login e senha provisoria.
+                */
+                return Promise.resolve(dados);
+            }
+
+            validarFormularioTopo() {
+                const campos = [this.refs.nome, this.refs.whatsapp, this.refs.cpf, this.refs.servico, this.refs.profissional];
+                return campos.map((campo) => this.validarCampo(campo)).every(Boolean);
+            }
+
+            validarCampo(campo) {
+                const valor = campo.value.trim();
+                let valido = true;
+                let mensagem = '';
+
+                if (!valor) {
+                    valido = false;
+                    mensagem = 'Campo obrigatorio.';
+                } else if (campo === this.refs.nome && valor.split(/\s+/).length < 2) {
+                    valido = false;
+                    mensagem = 'Informe nome e sobrenome.';
+                } else if (campo === this.refs.whatsapp && this.apenasDigitos(valor).length < 10) {
+                    valido = false;
+                    mensagem = 'Informe um WhatsApp valido.';
+                } else if (campo === this.refs.cpf && !this.validarCpf(valor)) {
+                    valido = false;
+                    mensagem = 'Informe um CPF valido.';
+                }
+
+                this.aplicarEstadoCampo(campo, valido, mensagem);
+                return valido;
+            }
+
+            aplicarEstadoCampo(campo, valido, mensagem) {
+                const grupo = campo.closest('.agp-campo');
+                const erro = grupo.querySelector('.agp-erro');
+                grupo.classList.toggle('is-valid', valido && campo.value.trim() !== '');
+                grupo.classList.toggle('is-invalid', !valido);
+                erro.textContent = mensagem || 'Campo valido.';
+            }
+
+            resetarSelecaoAgenda() {
+                this.estado.dataSelecionada = null;
+                this.estado.horarioSelecionado = null;
+                this.refs.dataSelecionada.textContent = 'Nenhuma data selecionada.';
+                this.refs.slots.innerHTML = this.podeConsultarAgenda()
+                    ? '<div class="agp-estado">Escolha um dia disponivel no calendario.</div>'
+                    : '<div class="agp-estado">Preencha procedimento e profissional para liberar o calendario.</div>';
+            }
+
+            resetarTudo() {
+                this.refs.form.reset();
+                this.root.querySelectorAll('.agp-campo').forEach((campo) => {
+                    campo.classList.remove('is-valid', 'is-invalid');
+                    const erro = campo.querySelector('.agp-erro');
+                    if (erro) erro.textContent = '';
+                });
+                const hoje = this.normalizarData(new Date());
+                this.estado.mes = hoje.getMonth();
+                this.estado.ano = hoje.getFullYear();
+                this.estado.dataBase = hoje;
+                this.estado.dataSelecionada = null;
+                this.estado.horarioSelecionado = null;
+                this.refs.valor.textContent = 'R$ 0,00';
+                this.refs.status.textContent = 'O horario escolhido sera confirmado no mesmo clique.';
+                this.atualizarBloqueioAgenda();
+                this.renderizarCalendario();
+            }
+
+            lerAgendamentos() {
+                try {
+                    const dados = localStorage.getItem(this.storageKey);
+                    return dados ? JSON.parse(dados) : [];
+                } catch (erro) {
+                    console.warn('localStorage invalido, reiniciando mock:', erro);
+                    localStorage.removeItem(this.storageKey);
+                    return [];
+                }
+            }
+
+            obterServicoSelecionado() {
+                return this.servicos.find((servico) => servico.id === this.refs.servico.value) || null;
+            }
+
+            obterProfissionalSelecionada() {
+                return this.profissionais.find((profissional) => profissional.id === this.refs.profissional.value) || null;
+            }
+
+            descreverDiasAtendimento(dias) {
+                const abreviados = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+                return dias.map((dia) => abreviados[dia]).join(', ');
+            }
+
+            formatarMoeda(valor) {
+                return new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                }).format(valor);
+            }
+
+            formatarDataLonga(data) {
+                return `${this.dias[data.getDay()]}, ${String(data.getDate()).padStart(2, '0')} de ${this.meses[data.getMonth()]} de ${data.getFullYear()}`;
+            }
+
+            formatarDataIso(data) {
+                const ano = data.getFullYear();
+                const mes = String(data.getMonth() + 1).padStart(2, '0');
+                const dia = String(data.getDate()).padStart(2, '0');
+                return `${ano}-${mes}-${dia}`;
+            }
+
+            formatarDataIsoParaBr(iso) {
+                const [ano, mes, dia] = iso.split('-');
+                return `${dia}/${mes}/${ano}`;
+            }
+
+            normalizarData(data) {
+                return new Date(data.getFullYear(), data.getMonth(), data.getDate());
+            }
+
+            datasIguais(a, b) {
+                return a.getFullYear() === b.getFullYear() &&
+                    a.getMonth() === b.getMonth() &&
+                    a.getDate() === b.getDate();
+            }
+
+            aplicarMascaraWhatsApp(valor) {
+                const digitos = this.apenasDigitos(valor).slice(0, 11);
+                if (digitos.length <= 2) return digitos;
+                if (digitos.length <= 6) return `(${digitos.slice(0, 2)}) ${digitos.slice(2)}`;
+                if (digitos.length <= 10) return `(${digitos.slice(0, 2)}) ${digitos.slice(2, 6)}-${digitos.slice(6)}`;
+                return `(${digitos.slice(0, 2)}) ${digitos.slice(2, 7)}-${digitos.slice(7)}`;
+            }
+
+            aplicarMascaraCpf(valor) {
+                const digitos = this.apenasDigitos(valor).slice(0, 11);
+                if (digitos.length <= 3) return digitos;
+                if (digitos.length <= 6) return `${digitos.slice(0, 3)}.${digitos.slice(3)}`;
+                if (digitos.length <= 9) return `${digitos.slice(0, 3)}.${digitos.slice(3, 6)}.${digitos.slice(6)}`;
+                return `${digitos.slice(0, 3)}.${digitos.slice(3, 6)}.${digitos.slice(6, 9)}-${digitos.slice(9)}`;
+            }
+
+            apenasDigitos(valor) {
+                return String(valor).replace(/\D/g, '');
+            }
+
+            validarCpf(valor) {
+                const cpf = this.apenasDigitos(valor);
+                if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+
+                let soma = 0;
+                for (let i = 0; i < 9; i += 1) {
+                    soma += Number(cpf[i]) * (10 - i);
+                }
+                let digito = (soma * 10) % 11;
+                if (digito === 10) digito = 0;
+                if (digito !== Number(cpf[9])) return false;
+
+                soma = 0;
+                for (let i = 0; i < 10; i += 1) {
+                    soma += Number(cpf[i]) * (11 - i);
+                }
+                digito = (soma * 10) % 11;
+                if (digito === 10) digito = 0;
+                return digito === Number(cpf[10]);
+            }
+
+            gerarSenhaProvisoria() {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                let senha = 'CL-';
+                for (let i = 0; i < 8; i += 1) {
+                    senha += chars[Math.floor(Math.random() * chars.length)];
+                }
+                return senha;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const widget = document.querySelector('#agp-widget');
+            if (widget) {
+                new SistemaAgendamentoUI(widget);
+            }
+        });
+    </script>
+</body>
+</html>
