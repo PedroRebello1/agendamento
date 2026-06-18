@@ -2,24 +2,32 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Widget de Agendamento L'Elegance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Agendamento L'Elegance</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
-        /* Variáveis L'Elegance baseadas na sua identidade */
         :root {
-            --azul-escuro: #0B192C;
-            --roxo: #7E57C2;
-            --roxo-hover: #5E35B1;
-            --prata: #B0BEC5;
-            --branco: #FFFFFF;
-            --bg-claro: #F8F9FA;
-            --borda: #E0E0E0;
-            --texto-muted: #6B7280;
-            --erro: #E53935;
-            --sucesso: #43A047;
-            --transition: all 0.2s ease;
+            /* Palette L'Elegance */
+            --primary: #7E57C2;
+            --primary-hover: #5E35B1;
+            --primary-light: #EDE7F6;
+            --secondary: #0B192C;
+            --bg: #F4F6F9;
+            --surface: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --error: #EF4444;
+            --error-bg: #FEF2F2;
+            --success: #10B981;
+            --success-hover: #059669;
+            
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --transition: all 0.2s ease-in-out;
         }
 
         * {
@@ -30,251 +38,447 @@
         }
 
         body {
-            background-color: #E9ECEF;
-            display: flex;
-            justify-content: center;
-            padding: 2rem;
+            background-color: var(--bg);
+            color: var(--text-main);
+            /* Mobile default spacing */
+            padding: 16px 16px 32px 16px; 
+            min-height: 100vh;
         }
 
-        /* Container Principal */
-        .elegance-widget {
-            background: var(--branco);
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border: 1px solid var(--borda);
+        /* Top-level App Container */
+        .elegance-app {
             max-width: 900px;
-            width: 100%;
-            overflow: hidden;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
+            gap: 16px;
         }
 
-        /* Seção de Dados (Topo) */
-        .dados-section {
-            padding: 2rem;
-            border-bottom: 1px solid var(--borda);
-            background: var(--bg-claro);
+        /* Header */
+        .app-header {
+            text-align: center;
+            padding: 16px 0;
+            animation: fadeInDown 0.4s ease;
+        }
+        .app-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 4px;
+        }
+        .app-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
         }
 
+        /* Card Component */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Grid */
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: 1fr;
+            gap: 16px;
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
         }
-
-        label {
+        
+        .input-group label {
             font-size: 0.85rem;
             font-weight: 600;
-            color: var(--azul-escuro);
-            margin-bottom: 0.5rem;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .error-text {
+            color: var(--error);
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .input-group.invalid .error-text {
+            display: block;
         }
 
         input, select {
-            padding: 0.8rem;
-            border: 1px solid var(--prata);
-            border-radius: 6px;
-            font-size: 0.95rem;
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 16px; /* Prevents zoom on iOS */
             outline: none;
+            background-color: var(--surface);
+            color: var(--text-main);
             transition: var(--transition);
+            -webkit-appearance: none; /* remove default styling */
+            appearance: none;
+        }
+        
+        /* Custom arrow for select */
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            padding-right: 40px;
         }
 
         input:focus, select:focus {
-            border-color: var(--roxo);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.15);
         }
 
-        input.invalid, select.invalid { border-color: var(--erro); background: #FFEBEE; }
-        
-        /* Layout Duplo: Calendário e Horários */
-        .scheduler-ui {
-            display: flex;
-            flex-direction: row;
-            min-height: 400px;
+        .input-group.invalid input, 
+        .input-group.invalid select {
+            border-color: var(--error);
+            background-color: var(--error-bg);
         }
 
-        /* Lado Esquerdo: Calendário */
-        .calendar-section {
-            flex: 1;
-            padding: 2rem;
-            border-right: 1px solid var(--borda);
+        /* Scheduler Grid (Responsive Wrapper) */
+        .scheduler-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
         }
 
+        /* Calendar */
         .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 20px;
         }
 
         .month-year {
             font-size: 1.1rem;
             font-weight: 600;
-            color: var(--azul-escuro);
+            color: var(--secondary);
+            text-transform: capitalize;
         }
 
-        .nav-arrows {
-            display: flex;
-            gap: 10px;
-        }
-
-        .arrow-btn {
-            background: none;
+        .icon-btn {
+            background: var(--bg);
             border: none;
-            font-size: 1.2rem;
             cursor: pointer;
-            color: var(--texto-muted);
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
+            color: var(--text-muted);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .arrow-btn:hover:not(:disabled) { background: var(--bg-claro); color: var(--azul-escuro); }
-        .arrow-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .icon-btn:hover:not(:disabled) {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .icon-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
 
         .weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             text-align: center;
             font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--texto-muted);
-            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 12px;
         }
 
         .days-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
+            gap: 6px;
             text-align: center;
         }
 
         .day-cell {
-            padding: 10px 0;
-            border-radius: 50%;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            width: 40px;
-            height: 40px;
+            width: 100%;
+            aspect-ratio: 1;
+            max-width: 44px;
+            max-height: 44px;
             margin: 0 auto;
+            border-radius: 50%;
+            font-size: 1rem;
+            font-weight: 500;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--azul-escuro);
+            cursor: pointer;
+            color: var(--text-main);
+            transition: var(--transition);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
         }
 
-        .day-cell:hover:not(.disabled) { background-color: rgba(126, 87, 194, 0.1); }
-        .day-cell.active { background-color: rgba(126, 87, 194, 0.2); color: var(--roxo); }
-        .day-cell.selected { background-color: var(--roxo); color: var(--branco); }
-        .day-cell.disabled { color: #D1D5DB; cursor: not-allowed; text-decoration: line-through; text-decoration-color: rgba(0,0,0,0.2); }
-
-        /* Lado Direito: Horários */
-        .time-section {
-            flex: 1;
-            padding: 2rem;
-            background: #FAFAFA;
-            display: flex;
-            flex-direction: column;
+        .day-cell:hover:not(.disabled) {
+            background-color: var(--primary-light);
+            color: var(--primary);
         }
-
-        .selected-date-display {
-            font-size: 1.1rem;
+        .day-cell.selected {
+            background-color: var(--primary);
+            color: var(--surface);
+            box-shadow: 0 4px 12px rgba(126, 87, 194, 0.4);
             font-weight: 600;
-            color: var(--azul-escuro);
-            margin-bottom: 1.5rem;
+        }
+        .day-cell.disabled {
+            color: #D1D5DB;
+            cursor: not-allowed;
+            text-decoration: line-through;
+            text-decoration-color: #E5E7EB;
+        }
+
+        /* Time Section */
+        .selected-date-display {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 16px;
             text-align: center;
+            background: var(--primary-light);
+            padding: 12px;
+            border-radius: var(--radius-md);
         }
 
         .time-slots-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            max-height: 350px;
             overflow-y: auto;
-            max-height: 300px;
-            padding-right: 5px;
+            padding-right: 4px;
+            /* Scrollbar styling for webkit */
+            scrollbar-width: thin;
+        }
+        
+        .time-slots-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .time-slots-container::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 6px;
         }
 
-        /* Estilo Pill Buttons (Baseado na imagem) */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: var(--text-muted);
+            padding: 32px 16px;
+            gap: 16px;
+        }
+        .empty-state svg { color: #CBD5E1; }
+        .empty-state p { font-size: 0.95rem; line-height: 1.5; }
+
         .time-slot-wrapper {
             display: flex;
-            gap: 10px;
-            transition: var(--transition);
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
         }
 
         .btn-time {
             flex: 1;
-            background: var(--branco);
-            border: 1px solid var(--roxo);
-            color: var(--roxo);
-            padding: 0.8rem;
-            border-radius: 6px;
+            background: var(--surface);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 14px;
+            border-radius: var(--radius-md);
             font-weight: 600;
+            font-size: 16px; /* Touch friendly */
             cursor: pointer;
             transition: var(--transition);
-            text-align: center;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .btn-time:hover { border-width: 2px; }
+        .btn-time:hover {
+            background: var(--primary-light);
+        }
         
         .time-slot-wrapper.active .btn-time {
-            background: var(--texto-muted);
-            color: var(--branco);
-            border-color: var(--texto-muted);
-            flex: 0.5; /* Encolhe para dar espaço ao botão confirmar */
+            background: var(--primary);
+            color: var(--surface);
+            border-color: var(--primary);
+            flex: 0.6;
         }
 
         .btn-confirm {
             display: none;
-            flex: 0.5;
-            background: var(--roxo);
-            color: var(--branco);
+            flex: 0.4;
+            background: var(--success);
+            color: var(--surface);
             border: none;
-            border-radius: 6px;
+            border-radius: var(--radius-md);
             font-weight: 600;
+            font-size: 16px;
             cursor: pointer;
             transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .btn-confirm:hover { background: var(--roxo-hover); }
-        .time-slot-wrapper.active .btn-confirm { display: block; animation: slideIn 0.2s ease forwards; }
+        .btn-confirm:hover { background: var(--success-hover); }
+        
+        .time-slot-wrapper.active .btn-confirm {
+            display: block;
+            animation: slideInRight 0.2s ease forwards;
+        }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
+        .resumo-valor {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        /* Toasts for Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 90%;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--secondary);
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideUp 0.3s ease forwards;
+            pointer-events: auto;
+        }
+        .toast.error { background: var(--error); }
+        .toast.success { background: var(--success); }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(15px); }
             to { opacity: 1; transform: translateX(0); }
         }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
 
-        .empty-state { text-align: center; color: var(--texto-muted); margin-top: 2rem; font-size: 0.9rem; }
-        .resumo-valor { margin-top: auto; padding-top: 1rem; text-align: center; font-size: 1.1rem; font-weight: bold; color: var(--azul-escuro); }
-
-        /* Responsividade */
-        @media (max-width: 768px) {
-            .scheduler-ui { flex-direction: column; }
-            .calendar-section { border-right: none; border-bottom: 1px solid var(--borda); }
-            .time-slot-wrapper.active { flex-direction: column; }
-            .time-slot-wrapper.active .btn-time { flex: 1; }
-            .time-slot-wrapper.active .btn-confirm { padding: 1rem; }
+        /* Responsive Breakpoints */
+        @media (min-width: 768px) {
+            body {
+                padding: 40px 24px;
+            }
+            .elegance-app {
+                gap: 24px;
+            }
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .scheduler-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+                align-items: stretch;
+            }
+            .card {
+                padding: 32px;
+            }
+            .calendar-section, .time-section {
+                display: flex;
+                flex-direction: column;
+            }
+            .time-slots-container {
+                flex-grow: 1;
+            }
+            .resumo-valor {
+                margin-top: auto;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="elegance-widget">
-        <div class="dados-section">
+    <div class="elegance-app">
+        
+        <header class="app-header">
+            <h1>L'Elegance</h1>
+            <p>Agende seu procedimento</p>
+        </header>
+
+        <!-- Formulário de Dados -->
+        <section class="card dados-section">
+            <h2 class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Seus Dados
+            </h2>
             <div class="form-grid">
                 <div class="input-group">
-                    <label>Nome Completo</label>
-                    <input type="text" id="wg-nome" placeholder="Seu nome" required>
+                    <label for="wg-nome">Nome Completo <span class="error-text">Obrigatório</span></label>
+                    <input type="text" id="wg-nome" placeholder="Seu nome" required autocomplete="name">
                 </div>
                 <div class="input-group">
-                    <label>WhatsApp</label>
-                    <input type="tel" id="wg-whatsapp" placeholder="(00) 00000-0000" required>
+                    <label for="wg-cpf">CPF <span class="error-text">Obrigatório</span></label>
+                    <input type="text" id="wg-cpf" placeholder="000.000.000-00" required>
                 </div>
                 <div class="input-group">
-                    <label>Procedimento</label>
+                    <label for="wg-whatsapp">WhatsApp <span class="error-text">Obrigatório</span></label>
+                    <input type="tel" id="wg-whatsapp" placeholder="(00) 00000-0000" required autocomplete="tel">
+                </div>
+                <div class="input-group">
+                    <label for="wg-servico">Procedimento <span class="error-text">Obrigatório</span></label>
                     <select id="wg-servico" required>
                         <option value="0" disabled selected>Selecione...</option>
                         <option value="1500">Harmonização Facial - R$ 1.500</option>
@@ -282,7 +486,7 @@
                     </select>
                 </div>
                 <div class="input-group">
-                    <label>Profissional</label>
+                    <label for="wg-medico">Profissional <span class="error-text">Obrigatório</span></label>
                     <select id="wg-medico" required>
                         <option value="0" disabled selected>Selecione a médica...</option>
                         <option value="medica1">Médica 1 (Seg, Qua, Sex)</option>
@@ -290,45 +494,62 @@
                     </select>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="scheduler-ui">
+        <!-- Agendamento (Calendário e Horários) -->
+        <div class="scheduler-grid">
             
-            <div class="calendar-section">
+            <section class="card calendar-section">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    Escolha a Data
+                </h2>
+                
                 <div class="calendar-header">
-                    <div class="month-year" id="cal-month-year">Janeiro 2026</div>
-                    <div class="nav-arrows">
-                        <button class="arrow-btn" id="btn-prev-month">◄</button>
-                        <button class="arrow-btn" id="btn-next-month">►</button>
-                    </div>
+                    <button class="icon-btn" id="btn-prev-month" aria-label="Mês anterior">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <div class="month-year" id="cal-month-year" aria-live="polite">Janeiro 2026</div>
+                    <button class="icon-btn" id="btn-next-month" aria-label="Próximo mês">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                 </div>
                 <div class="weekdays">
-                    <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                    <div aria-hidden="true">Dom</div><div aria-hidden="true">Seg</div><div aria-hidden="true">Ter</div><div aria-hidden="true">Qua</div><div aria-hidden="true">Qui</div><div aria-hidden="true">Sex</div><div aria-hidden="true">Sáb</div>
                 </div>
-                <div class="days-grid" id="cal-days-grid">
-                    </div>
-            </div>
+                <div class="days-grid" id="cal-days-grid" role="grid">
+                    <!-- Dias gerados via JS -->
+                </div>
+            </section>
 
-            <div class="time-section">
-                <div class="selected-date-display" id="display-selected-date">Selecione uma data</div>
+            <section class="card time-section">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    Horários Disponíveis
+                </h2>
+                
+                <div class="selected-date-display" id="display-selected-date" style="display: none;"></div>
                 
                 <div class="time-slots-container" id="time-slots-container">
-                    <div class="empty-state">Preencha os dados e escolha um dia no calendário para ver os horários.</div>
+                    <div class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <p>Preencha seus dados e escolha uma data no calendário para visualizar os horários.</p>
+                    </div>
                 </div>
 
                 <div class="resumo-valor" id="display-valor">Estimativa: R$ 0,00</div>
-            </div>
+            </section>
 
         </div>
     </div>
+
+    <div id="toast-container" class="toast-container"></div>
 
     <script>
         class SistemaAgendamentoUI {
             constructor() {
                 this.STORAGE_KEY = 'lelegance_agendamentos';
-                // Configuração real solicitada:
-                // Medica 1: Seg(1), Qua(3), Sex(5)
-                // Medica 2: Ter(2), Qui(4)
+                
                 this.configProfissionais = {
                     'medica1': { dias: [1, 3, 5], slots: ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00'] },
                     'medica2': { dias: [2, 4], slots: ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00'] }
@@ -337,15 +558,15 @@
                 this.mesesStr = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
                 this.diasStr = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 
-                // Estado da Aplicação
                 this.dataAtual = new Date();
                 this.mesRenderizado = this.dataAtual.getMonth();
                 this.anoRenderizado = this.dataAtual.getFullYear();
-                this.dataSelecionadaStr = null; // Formato YYYY-MM-DD
+                this.dataSelecionadaStr = null;
                 this.horarioSelecionado = null;
 
-                // Elementos do DOM
+                // Elements
                 this.elNome = document.getElementById('wg-nome');
+                this.elCpf = document.getElementById('wg-cpf');
                 this.elZap = document.getElementById('wg-whatsapp');
                 this.elServico = document.getElementById('wg-servico');
                 this.elMedico = document.getElementById('wg-medico');
@@ -358,21 +579,43 @@
                 this.elDisplayDate = document.getElementById('display-selected-date');
                 this.elSlotsContainer = document.getElementById('time-slots-container');
                 this.elDisplayValor = document.getElementById('display-valor');
+                
+                this.toastContainer = document.getElementById('toast-container');
 
                 this.inicializar();
             }
 
             inicializar() {
-                try {
-                    this.vincularEventosBase();
-                    this.renderizarCalendario();
-                } catch (error) {
-                    console.error("Erro na inicialização do Widget UI:", error);
-                }
+                this.vincularEventosBase();
+                this.renderizarCalendario();
+                
+                // Remove invalid state on input
+                [this.elNome, this.elCpf, this.elZap, this.elServico, this.elMedico].forEach(el => {
+                    el.addEventListener('input', () => {
+                        el.closest('.input-group').classList.remove('invalid');
+                    });
+                });
+            }
+
+            showToast(message, type = 'error') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                // Icon based on type
+                const iconSVG = type === 'success' 
+                    ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`
+                    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+
+                toast.innerHTML = `${iconSVG} <span>${message}</span>`;
+                this.toastContainer.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, 4000);
             }
 
             vincularEventosBase() {
-                // Navegação do Calendário
                 this.btnPrev.addEventListener('click', () => {
                     this.mesRenderizado--;
                     if (this.mesRenderizado < 0) { this.mesRenderizado = 11; this.anoRenderizado--; }
@@ -385,16 +628,20 @@
                     this.renderizarCalendario();
                 });
 
-                // Mudança de Médico recarrega o calendário para desabilitar dias corretos
                 this.elMedico.addEventListener('change', () => {
                     this.resetarSelecao();
                     this.renderizarCalendario();
+                    
+                    if (window.innerWidth < 768 && this.validarCamposTopo(false)) {
+                        document.querySelector('.calendar-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
                 });
 
-                // Atualizar valor
                 this.elServico.addEventListener('change', (e) => {
                     const val = parseFloat(e.target.value);
-                    if (val > 0) this.elDisplayValor.textContent = `Estimativa: ${val.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}`;
+                    if (val > 0) {
+                        this.elDisplayValor.textContent = `Estimativa: ${val.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}`;
+                    }
                 });
             }
 
@@ -411,17 +658,16 @@
                 const medicoId = this.elMedico.value;
                 const configMedico = this.configProfissionais[medicoId];
 
-                // Controle do botão Prev (não voltar para meses antes do atual)
                 const renderizandoData = new Date(this.anoRenderizado, this.mesRenderizado, 1);
                 this.btnPrev.disabled = (renderizandoData <= new Date(hoje.getFullYear(), hoje.getMonth(), 1));
 
-                // Preencher espaços vazios iniciais
+                // Empty initial slots
                 for (let i = 0; i < primeiroDiaMes; i++) {
                     const div = document.createElement('div');
                     this.elDaysGrid.appendChild(div);
                 }
 
-                // Preencher dias
+                // Days
                 for (let dia = 1; dia <= diasNoMes; dia++) {
                     const divDia = document.createElement('div');
                     divDia.classList.add('day-cell');
@@ -431,26 +677,30 @@
                     const dataRefStr = this.formatarDataIso(dataRef);
                     const diaSemana = dataRef.getDay();
 
-                    // Validações de Bloqueio
                     let isDisabled = false;
 
-                    // 1. Data no passado
                     if (dataRef < hoje) isDisabled = true;
-                    // 2. Médico selecionado, mas não atende neste dia da semana
                     if (medicoId !== '0' && configMedico && !configMedico.dias.includes(diaSemana)) isDisabled = true;
-                    // 3. Médico não selecionado (bloqueia tudo até selecionar)
                     if (medicoId === '0') isDisabled = true;
 
                     if (isDisabled) {
                         divDia.classList.add('disabled');
+                        divDia.setAttribute('aria-disabled', 'true');
                     } else {
-                        // Dia válido
-                        // Verifica se este é o dia atualmente selecionado no state
                         if (this.dataSelecionadaStr === dataRefStr) {
                             divDia.classList.add('selected');
                         }
-
+                        
+                        divDia.setAttribute('role', 'button');
+                        divDia.setAttribute('tabindex', '0');
+                        
                         divDia.addEventListener('click', () => this.selecionarData(dataRefStr, divDia, dataRef));
+                        divDia.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                this.selecionarData(dataRefStr, divDia, dataRef);
+                            }
+                        });
                     }
 
                     this.elDaysGrid.appendChild(divDia);
@@ -460,17 +710,22 @@
             selecionarData(dataStr, elementoDiv, dataObj) {
                 if (!this.validarCamposTopo()) return;
 
-                // Atualizar UI do Calendário
                 document.querySelectorAll('.day-cell.selected').forEach(el => el.classList.remove('selected'));
                 elementoDiv.classList.add('selected');
 
                 this.dataSelecionadaStr = dataStr;
                 
-                // Atualizar UI dos Horários
                 const txtData = `${this.diasStr[dataObj.getDay()]}, ${dataObj.getDate()} de ${this.mesesStr[dataObj.getMonth()]}`;
                 this.elDisplayDate.textContent = txtData;
+                this.elDisplayDate.style.display = 'block';
                 
                 this.renderizarHorarios();
+
+                if (window.innerWidth < 768) {
+                    setTimeout(() => {
+                        document.querySelector('.time-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
             }
 
             renderizarHorarios() {
@@ -486,7 +741,7 @@
                 let slotsDisponiveis = 0;
 
                 slotsMedico.forEach(slotTime => {
-                    if (slotsOcupados.includes(slotTime)) return; // Pula ocupados
+                    if (slotsOcupados.includes(slotTime)) return; 
 
                     slotsDisponiveis++;
                     
@@ -496,20 +751,19 @@
                     const btnTime = document.createElement('button');
                     btnTime.classList.add('btn-time');
                     btnTime.textContent = slotTime;
+                    btnTime.setAttribute('aria-label', `Selecionar horário ${slotTime}`);
 
                     const btnConfirm = document.createElement('button');
                     btnConfirm.classList.add('btn-confirm');
                     btnConfirm.textContent = 'Confirmar';
+                    btnConfirm.setAttribute('aria-label', `Confirmar agendamento para ${slotTime}`);
 
-                    // Lógica de click no horário (Abre o Confirmar)
                     btnTime.addEventListener('click', () => {
-                        // Reseta outros wrappers
                         document.querySelectorAll('.time-slot-wrapper').forEach(w => w.classList.remove('active'));
                         wrapper.classList.add('active');
                         this.horarioSelecionado = slotTime;
                     });
 
-                    // Lógica de Finalizar Agendamento
                     btnConfirm.addEventListener('click', () => this.finalizarAgendamento());
 
                     wrapper.appendChild(btnTime);
@@ -518,38 +772,58 @@
                 });
 
                 if (slotsDisponiveis === 0) {
-                    this.elSlotsContainer.innerHTML = '<div class="empty-state">Nenhum horário disponível para esta data.</div>';
+                    this.elSlotsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            <p>Nenhum horário disponível para esta data. Por favor, selecione outro dia.</p>
+                        </div>`;
                 }
             }
 
-            validarCamposTopo() {
-                const campos = [this.elNome, this.elZap, this.elServico, this.elMedico];
+            validarCamposTopo(showToast = true) {
+                const campos = [
+                    {el: this.elNome, val: this.elNome.value.trim()},
+                    {el: this.elCpf, val: this.elCpf.value.trim()},
+                    {el: this.elZap, val: this.elZap.value.trim()},
+                    {el: this.elServico, val: this.elServico.value},
+                    {el: this.elMedico, val: this.elMedico.value}
+                ];
                 let valido = true;
+                let primeiroInvalido = null;
 
                 campos.forEach(c => {
-                    if (!c.value.trim() || c.value === '0') {
-                        c.classList.add('invalid');
+                    const group = c.el.closest('.input-group');
+                    if (!c.val || c.val === '0') {
+                        group.classList.add('invalid');
                         valido = false;
+                        if (!primeiroInvalido) primeiroInvalido = c.el;
                     } else {
-                        c.classList.remove('invalid');
+                        group.classList.remove('invalid');
                     }
                 });
 
                 if (!valido) {
-                    alert('Por favor, preencha seus dados, procedimento e profissional antes de escolher a data.');
+                    if (showToast) {
+                        this.showToast('Por favor, preencha todos os campos obrigatórios acima.');
+                        if (primeiroInvalido) {
+                            primeiroInvalido.focus();
+                            primeiroInvalido.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
                 }
                 return valido;
             }
 
             finalizarAgendamento() {
                 if (!this.validarCamposTopo() || !this.dataSelecionadaStr || !this.horarioSelecionado) {
-                    alert("Erro de validação. Revise os dados.");
+                    this.showToast("Erro de validação. Revise os dados do agendamento.");
                     return;
                 }
 
                 const novoAgendamento = {
                     id: Date.now().toString(),
                     nome: this.elNome.value,
+                    cpf: this.elCpf.value,
                     whatsapp: this.elZap.value,
                     servico: this.elServico.value,
                     medico: this.elMedico.value,
@@ -563,27 +837,35 @@
                     db.push(novoAgendamento);
                     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(db));
 
-                    alert("Agendamento confirmado com sucesso! Entraremos em contato via WhatsApp.");
+                    this.showToast("Agendamento confirmado com sucesso! Entraremos em contato.", "success");
                     
-                    // Limpar tudo
+                    // Reset everything
                     this.elNome.value = '';
+                    this.elCpf.value = '';
                     this.elZap.value = '';
                     this.elServico.value = '0';
                     this.elMedico.value = '0';
                     this.resetarSelecao();
                     this.renderizarCalendario();
+                    
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
 
                 } catch (error) {
                     console.error("Erro ao salvar dados:", error);
-                    alert("Ocorreu um erro interno. Tente novamente.");
+                    this.showToast("Ocorreu um erro interno. Tente novamente.");
                 }
             }
 
             resetarSelecao() {
                 this.dataSelecionadaStr = null;
                 this.horarioSelecionado = null;
-                this.elDisplayDate.textContent = 'Selecione uma data';
-                this.elSlotsContainer.innerHTML = '<div class="empty-state">Preencha os dados e escolha um dia no calendário para ver os horários.</div>';
+                this.elDisplayDate.style.display = 'none';
+                this.elSlotsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <p>Preencha seus dados e escolha uma data no calendário para visualizar os horários.</p>
+                    </div>`;
                 this.elDisplayValor.textContent = 'Estimativa: R$ 0,00';
             }
 
@@ -593,7 +875,6 @@
             }
 
             formatarDataIso(dataObj) {
-                // Retorna formato YYYY-MM-DD corrigindo timezone local
                 const ano = dataObj.getFullYear();
                 const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
                 const dia = String(dataObj.getDate()).padStart(2, '0');

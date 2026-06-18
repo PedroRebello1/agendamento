@@ -549,6 +549,688 @@
                 min-height: 46px;
             }
         }
+
+        /*
+         * Mobile-first redesign overrides.
+         * Kept at the end of the stylesheet so the original scheduling
+         * behavior remains intact while the visual system is rebuilt.
+         */
+        html {
+            width: 100%;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .agp-page,
+        .agp-page * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .agp-page {
+            --agp-azul-escuro: #132233;
+            --agp-roxo: #0f766e;
+            --agp-roxo-escuro: #115e59;
+            --agp-prata: #98a2b3;
+            --agp-prata-claro: #eef4f3;
+            --agp-branco: #ffffff;
+            --agp-fundo: #f5f7fa;
+            --agp-texto: #16202a;
+            --agp-texto-suave: #667085;
+            --agp-borda: #d8e0e8;
+            --agp-sucesso: #168a5b;
+            --agp-sucesso-bg: #ecfdf5;
+            --agp-erro: #b42318;
+            --agp-erro-bg: #fff1f0;
+            --agp-aviso: #8a5a00;
+            --agp-aviso-bg: #fff7df;
+            --agp-sombra: 0 18px 45px rgba(19, 34, 51, 0.12);
+            --agp-radius-sm: 8px;
+            --agp-radius-md: 12px;
+            --agp-radius-lg: 16px;
+            --agp-space-1: 4px;
+            --agp-space-2: 8px;
+            --agp-space-3: 12px;
+            --agp-space-4: 14px;
+            --agp-space-5: 18px;
+            --agp-space-6: 22px;
+            --agp-space-7: 28px;
+            --agp-font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            width: 100%;
+            min-width: 0;
+            min-height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: var(--agp-fundo);
+            color: var(--agp-texto);
+            font-family: var(--agp-font);
+            line-height: 1.45;
+        }
+
+        .agp-widget {
+            width: 100%;
+            min-height: 100dvh;
+            margin: 0;
+            overflow: clip;
+            border: 0;
+            border-radius: 0;
+            background: var(--agp-branco);
+            box-shadow: none;
+        }
+
+        .agp-topo {
+            padding: var(--agp-space-5) var(--agp-space-4) var(--agp-space-6);
+            border-bottom: 1px solid var(--agp-borda);
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbfb 100%);
+        }
+
+        .agp-cabecalho {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: var(--agp-space-4);
+            margin-bottom: var(--agp-space-5);
+        }
+
+        .agp-titulo {
+            margin: 0 0 var(--agp-space-2);
+            color: var(--agp-azul-escuro);
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: 0;
+            line-height: 1.12;
+        }
+
+        .agp-subtitulo {
+            max-width: 58ch;
+            margin: 0;
+            color: var(--agp-texto-suave);
+            font-size: 0.98rem;
+            line-height: 1.5;
+        }
+
+        .agp-valor {
+            width: 100%;
+            min-width: 0;
+            padding: var(--agp-space-4);
+            border: 1px solid rgba(15, 118, 110, 0.22);
+            border-radius: var(--agp-radius-md);
+            background: #f0fdfa;
+            color: var(--agp-azul-escuro);
+            text-align: left;
+        }
+
+        .agp-valor-label {
+            margin-bottom: var(--agp-space-1);
+            color: var(--agp-roxo-escuro);
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .agp-valor-total {
+            font-size: 1.34rem;
+            font-weight: 850;
+            line-height: 1.15;
+        }
+
+        .agp-form {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: var(--agp-space-4);
+        }
+
+        .agp-campo,
+        .agp-campo--span-2,
+        .agp-campo--span-3 {
+            min-width: 0;
+            grid-column: auto;
+        }
+
+        .agp-label {
+            display: flex;
+            align-items: center;
+            min-height: 22px;
+            margin-bottom: var(--agp-space-2);
+            color: var(--agp-azul-escuro);
+            font-size: 0.9rem;
+            font-weight: 750;
+        }
+
+        .agp-input,
+        .agp-select {
+            width: 100%;
+            min-height: 52px;
+            padding: 13px 14px;
+            border: 1px solid var(--agp-borda);
+            border-radius: var(--agp-radius-md);
+            outline: 0;
+            background: var(--agp-branco);
+            color: var(--agp-texto);
+            font-family: var(--agp-font);
+            font-size: 16px;
+            line-height: 1.35;
+            transition:
+                border-color 160ms ease,
+                box-shadow 160ms ease,
+                background-color 160ms ease,
+                transform 160ms ease;
+        }
+
+        .agp-select {
+            padding-right: 38px;
+        }
+
+        .agp-input::placeholder {
+            color: #98a2b3;
+        }
+
+        .agp-input:focus,
+        .agp-select:focus,
+        .agp-nav-btn:focus-visible,
+        .agp-acao-btn:focus-visible,
+        .agp-slot-btn:focus-visible,
+        .agp-confirmar-btn:focus-visible,
+        .agp-dia:focus-visible {
+            border-color: var(--agp-roxo);
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.16);
+            outline: 0;
+        }
+
+        .agp-campo.is-valid .agp-input,
+        .agp-campo.is-valid .agp-select {
+            border-color: rgba(22, 138, 91, 0.58);
+            background: #fbfffd;
+        }
+
+        .agp-campo.is-invalid .agp-input,
+        .agp-campo.is-invalid .agp-select {
+            border-color: var(--agp-erro);
+            background: var(--agp-erro-bg);
+        }
+
+        .agp-erro {
+            display: none;
+            min-height: 0;
+            margin: var(--agp-space-2) 0 0;
+            color: var(--agp-erro);
+            font-size: 0.82rem;
+            font-weight: 650;
+            line-height: 1.35;
+        }
+
+        .agp-campo.is-invalid .agp-erro {
+            display: block;
+            visibility: visible;
+        }
+
+        .agp-corpo {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            min-height: 0;
+            background: var(--agp-branco);
+        }
+
+        .agp-calendario,
+        .agp-horarios {
+            min-width: 0;
+            padding: var(--agp-space-5) var(--agp-space-4);
+        }
+
+        .agp-calendario {
+            border-right: 0;
+            border-bottom: 1px solid var(--agp-borda);
+        }
+
+        .agp-horarios {
+            display: flex;
+            flex-direction: column;
+            background: #fbfcfd;
+        }
+
+        .agp-secao-topo {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: var(--agp-space-3);
+            margin-bottom: var(--agp-space-5);
+        }
+
+        .agp-secao-titulo {
+            margin: 0;
+            color: var(--agp-azul-escuro);
+            font-size: 1.06rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .agp-mes,
+        .agp-data-selecionada {
+            margin: var(--agp-space-1) 0 0;
+            color: var(--agp-texto-suave);
+            font-size: 0.92rem;
+            line-height: 1.4;
+        }
+
+        .agp-navegacao {
+            display: flex;
+            flex: 0 0 auto;
+            gap: var(--agp-space-2);
+            justify-content: flex-end;
+        }
+
+        .agp-nav-btn,
+        .agp-acao-btn,
+        .agp-slot-btn,
+        .agp-confirmar-btn {
+            min-height: 44px;
+            border-radius: var(--agp-radius-md);
+            font-family: var(--agp-font);
+            font-size: 0.96rem;
+            font-weight: 800;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition:
+                transform 160ms ease,
+                background-color 160ms ease,
+                color 160ms ease,
+                border-color 160ms ease,
+                box-shadow 160ms ease,
+                opacity 160ms ease;
+        }
+
+        .agp-nav-btn {
+            flex: 0 0 auto;
+            width: 46px;
+            border: 1px solid var(--agp-borda);
+            background: var(--agp-branco);
+            color: var(--agp-azul-escuro);
+            font-size: 1rem;
+        }
+
+        .agp-nav-btn:hover:not(:disabled),
+        .agp-acao-btn:hover:not(:disabled),
+        .agp-slot-btn:hover:not(:disabled) {
+            border-color: rgba(15, 118, 110, 0.45);
+            background: #f0fdfa;
+            color: var(--agp-roxo-escuro);
+        }
+
+        .agp-nav-btn:active:not(:disabled),
+        .agp-acao-btn:active:not(:disabled),
+        .agp-slot-btn:active:not(:disabled),
+        .agp-confirmar-btn:active:not(:disabled),
+        .agp-dia:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .agp-nav-btn:disabled,
+        .agp-acao-btn:disabled,
+        .agp-slot-btn:disabled,
+        .agp-confirmar-btn:disabled {
+            opacity: 0.48;
+            cursor: not-allowed;
+        }
+
+        .agp-calendario-shell {
+            position: relative;
+            min-width: 0;
+        }
+
+        .agp-bloqueio {
+            display: none;
+            margin-bottom: var(--agp-space-4);
+            padding: var(--agp-space-3) var(--agp-space-4);
+            border: 1px solid rgba(138, 90, 0, 0.2);
+            border-radius: var(--agp-radius-md);
+            background: var(--agp-aviso-bg);
+            color: var(--agp-aviso);
+            font-size: 0.9rem;
+            line-height: 1.42;
+        }
+
+        .agp-calendario-shell.is-locked .agp-bloqueio {
+            display: block;
+        }
+
+        .agp-dias-semana,
+        .agp-grid-dias {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 4px;
+            width: 100%;
+        }
+
+        .agp-dias-semana {
+            margin-bottom: var(--agp-space-2);
+            color: var(--agp-texto-suave);
+            font-size: 0.72rem;
+            font-weight: 850;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .agp-dias-semana span {
+            min-width: 0;
+        }
+
+        .agp-dia,
+        .agp-dia-vazio {
+            width: 100%;
+            min-width: 0;
+            aspect-ratio: 1;
+        }
+
+        .agp-dia {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            border: 1px solid transparent;
+            border-radius: var(--agp-radius-sm);
+            background: #ffffff;
+            color: var(--agp-azul-escuro);
+            font-family: var(--agp-font);
+            font-size: 0.95rem;
+            font-weight: 850;
+            cursor: pointer;
+        }
+
+        .agp-dia:hover:not(:disabled) {
+            border-color: rgba(15, 118, 110, 0.38);
+            background: #f0fdfa;
+            color: var(--agp-roxo-escuro);
+            transform: none;
+        }
+
+        .agp-dia.is-hoje {
+            border-color: var(--agp-roxo);
+            box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.12);
+        }
+
+        .agp-dia.is-selecionado {
+            border-color: var(--agp-roxo);
+            background: var(--agp-roxo);
+            color: var(--agp-branco);
+            box-shadow: 0 8px 18px rgba(15, 118, 110, 0.22);
+        }
+
+        .agp-dia:disabled {
+            border-color: transparent;
+            background: #f3f5f7;
+            color: #98a2b3;
+            cursor: not-allowed;
+            opacity: 1;
+            text-decoration: none;
+        }
+
+        .agp-calendario-shell.is-locked .agp-grid-dias {
+            pointer-events: none;
+        }
+
+        .agp-legenda {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--agp-space-2) var(--agp-space-4);
+            margin-top: var(--agp-space-4);
+            color: var(--agp-texto-suave);
+            font-size: 0.84rem;
+        }
+
+        .agp-legenda-item {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--agp-space-2);
+            min-height: 24px;
+        }
+
+        .agp-legenda-marcador {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+            background: var(--agp-roxo);
+        }
+
+        .agp-legenda-marcador--bloqueado {
+            background: #d0d5dd;
+            opacity: 1;
+        }
+
+        .agp-slots {
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            gap: var(--agp-space-3);
+            min-height: 220px;
+            max-height: none;
+            overflow: visible;
+            padding-right: 0;
+        }
+
+        .agp-slot-linha {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            align-items: stretch;
+            gap: var(--agp-space-2);
+            min-height: 0;
+        }
+
+        .agp-slot-btn {
+            width: 100%;
+            min-width: 0;
+            border: 1px solid rgba(15, 118, 110, 0.42);
+            background: var(--agp-branco);
+            color: var(--agp-roxo-escuro);
+        }
+
+        .agp-slot-linha.is-active .agp-slot-btn {
+            flex: initial;
+            border-color: var(--agp-azul-escuro);
+            background: var(--agp-azul-escuro);
+            color: var(--agp-branco);
+        }
+
+        .agp-slot-btn:disabled {
+            border-color: var(--agp-borda);
+            background: #f2f4f7;
+            color: #98a2b3;
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
+        .agp-confirmar-btn {
+            width: 100%;
+            max-height: 0;
+            min-height: 0;
+            padding: 0 16px;
+            overflow: hidden;
+            border: 0;
+            background: var(--agp-roxo);
+            color: var(--agp-branco);
+            opacity: 0;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .agp-slot-linha.is-active .agp-confirmar-btn {
+            flex: initial;
+            width: 100%;
+            max-height: 52px;
+            min-height: 52px;
+            padding: 0 18px;
+            opacity: 1;
+            pointer-events: auto;
+            animation: agpSlideIn 180ms ease both;
+        }
+
+        .agp-confirmar-btn:hover:not(:disabled) {
+            background: var(--agp-roxo-escuro);
+        }
+
+        .agp-widget.is-confirming .agp-confirmar-btn,
+        .agp-widget.is-confirming .agp-acao-btn,
+        .agp-widget.is-confirming .agp-slot-btn,
+        .agp-widget.is-confirming .agp-dia {
+            cursor: progress;
+        }
+
+        @keyframes agpSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .agp-estado {
+            display: grid;
+            min-height: 180px;
+            place-items: center;
+            padding: var(--agp-space-6) var(--agp-space-5);
+            border: 1px dashed var(--agp-borda);
+            border-radius: var(--agp-radius-md);
+            background: #ffffff;
+            color: var(--agp-texto-suave);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .agp-rodape-acoes {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: var(--agp-space-3);
+            margin-top: var(--agp-space-5);
+            padding-top: var(--agp-space-4);
+            border-top: 1px solid var(--agp-borda);
+        }
+
+        .agp-status {
+            min-width: 0;
+            margin: 0;
+            color: var(--agp-texto-suave);
+            font-size: 0.9rem;
+            line-height: 1.42;
+        }
+
+        .agp-acao-btn {
+            width: 100%;
+            min-height: 48px;
+            padding: 0 16px;
+            border: 1px solid var(--agp-borda);
+            background: var(--agp-branco);
+            color: var(--agp-azul-escuro);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .agp-page *,
+            .agp-page *::before,
+            .agp-page *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+
+
+        @media (min-width: 560px) {
+            .agp-page {
+                padding: var(--agp-space-5);
+            }
+
+            .agp-widget {
+                min-height: auto;
+                overflow: hidden;
+                border: 1px solid rgba(216, 224, 232, 0.9);
+                border-radius: var(--agp-radius-lg);
+                box-shadow: var(--agp-sombra);
+            }
+
+            .agp-topo,
+            .agp-calendario,
+            .agp-horarios {
+                padding: var(--agp-space-6);
+            }
+
+            .agp-cabecalho {
+                grid-template-columns: minmax(0, 1fr) minmax(190px, 240px);
+                align-items: start;
+            }
+
+            .agp-form {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .agp-rodape-acoes {
+                grid-template-columns: minmax(0, 1fr) auto;
+                align-items: center;
+            }
+
+            .agp-acao-btn {
+                width: auto;
+            }
+
+            .agp-slot-linha.is-active {
+                grid-template-columns: minmax(0, 1fr) minmax(132px, 0.7fr);
+            }
+
+            .agp-slot-linha.is-active .agp-confirmar-btn {
+                min-height: 48px;
+            }
+        }
+
+        @media (min-width: 760px) {
+            .agp-page {
+                padding: var(--agp-space-7);
+            }
+
+            .agp-widget {
+                width: min(1120px, 100%);
+                margin: 0 auto;
+            }
+
+            .agp-titulo {
+                font-size: 1.9rem;
+            }
+
+            .agp-form {
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+            }
+
+            .agp-campo--span-2 {
+                grid-column: span 2;
+            }
+
+            .agp-campo--span-3 {
+                grid-column: span 3;
+            }
+
+            .agp-dias-semana,
+            .agp-grid-dias {
+                gap: 6px;
+            }
+        }
+
+        @media (min-width: 980px) {
+            .agp-corpo {
+                grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+            }
+
+            .agp-calendario {
+                border-right: 1px solid var(--agp-borda);
+                border-bottom: 0;
+            }
+
+            .agp-slots {
+                max-height: 430px;
+                overflow-y: auto;
+                padding-right: var(--agp-space-1);
+            }
+        }
     </style>
 </head>
 <body class="agp-page">
@@ -565,39 +1247,39 @@
                 </div>
             </div>
 
-            <form class="agp-form" id="agp-form" novalidate>
+            <form class="agp-form" id="agp-form" aria-label="Dados para agendamento" novalidate>
                 <div class="agp-campo agp-campo--span-2" data-field="nome">
                     <label class="agp-label" for="agp-nome">Nome completo</label>
-                    <input class="agp-input" id="agp-nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome completo" required>
-                    <p class="agp-erro" id="agp-nome-erro"></p>
+                    <input class="agp-input" id="agp-nome" name="nome" type="text" autocomplete="name" autocapitalize="words" spellcheck="false" enterkeyhint="next" aria-describedby="agp-nome-erro" aria-invalid="false" placeholder="Seu nome completo" required>
+                    <p class="agp-erro" id="agp-nome-erro" role="alert" hidden></p>
                 </div>
 
                 <div class="agp-campo agp-campo--span-2" data-field="whatsapp">
                     <label class="agp-label" for="agp-whatsapp">WhatsApp</label>
-                    <input class="agp-input" id="agp-whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000" required>
-                    <p class="agp-erro" id="agp-whatsapp-erro"></p>
+                    <input class="agp-input" id="agp-whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" maxlength="15" aria-describedby="agp-whatsapp-erro" aria-invalid="false" placeholder="(00) 00000-0000" required>
+                    <p class="agp-erro" id="agp-whatsapp-erro" role="alert" hidden></p>
                 </div>
 
                 <div class="agp-campo agp-campo--span-2" data-field="cpf">
                     <label class="agp-label" for="agp-cpf">CPF</label>
-                    <input class="agp-input" id="agp-cpf" name="cpf" type="text" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" required>
-                    <p class="agp-erro" id="agp-cpf-erro"></p>
+                    <input class="agp-input" id="agp-cpf" name="cpf" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="next" maxlength="14" aria-describedby="agp-cpf-erro" aria-invalid="false" placeholder="000.000.000-00" required>
+                    <p class="agp-erro" id="agp-cpf-erro" role="alert" hidden></p>
                 </div>
 
                 <div class="agp-campo agp-campo--span-3" data-field="servico">
                     <label class="agp-label" for="agp-servico">Procedimento</label>
-                    <select class="agp-select" id="agp-servico" name="servico" required>
+                    <select class="agp-select" id="agp-servico" name="servico" aria-describedby="agp-servico-erro" aria-invalid="false" required>
                         <option value="">Selecione um procedimento</option>
                     </select>
-                    <p class="agp-erro" id="agp-servico-erro"></p>
+                    <p class="agp-erro" id="agp-servico-erro" role="alert" hidden></p>
                 </div>
 
                 <div class="agp-campo agp-campo--span-3" data-field="profissional">
                     <label class="agp-label" for="agp-profissional">Profissional</label>
-                    <select class="agp-select" id="agp-profissional" name="profissional" required>
+                    <select class="agp-select" id="agp-profissional" name="profissional" aria-describedby="agp-profissional-erro" aria-invalid="false" required>
                         <option value="">Selecione uma profissional</option>
                     </select>
-                    <p class="agp-erro" id="agp-profissional-erro"></p>
+                    <p class="agp-erro" id="agp-profissional-erro" role="alert" hidden></p>
                 </div>
             </form>
         </section>
@@ -649,7 +1331,7 @@
                 </div>
 
                 <div class="agp-rodape-acoes">
-                    <p class="agp-status" id="agp-status">O horario escolhido sera confirmado no mesmo clique.</p>
+                    <p class="agp-status" id="agp-status" role="status" aria-live="polite">O horario escolhido sera confirmado no mesmo clique.</p>
                     <button class="agp-acao-btn" id="agp-limpar" type="button">Limpar dados</button>
                 </div>
             </div>
@@ -702,7 +1384,8 @@
                     mes: hoje.getMonth(),
                     ano: hoje.getFullYear(),
                     dataSelecionada: null,
-                    horarioSelecionado: null
+                    horarioSelecionado: null,
+                    confirmando: false
                 };
 
                 this.refs = this.mapearElementos();
@@ -726,6 +1409,7 @@
                     gridDias: this.root.querySelector('#agp-grid-dias'),
                     dataSelecionada: this.root.querySelector('#agp-data-selecionada'),
                     slots: this.root.querySelector('#agp-slots'),
+                    horarios: this.root.querySelector('.agp-horarios'),
                     status: this.root.querySelector('#agp-status'),
                     limpar: this.root.querySelector('#agp-limpar')
                 };
@@ -815,6 +1499,7 @@
             atualizarBloqueioAgenda() {
                 const bloqueado = !this.podeConsultarAgenda();
                 this.refs.calendarioShell.classList.toggle('is-locked', bloqueado);
+                this.refs.calendarioShell.setAttribute('aria-disabled', String(bloqueado));
                 this.refs.bloqueioCalendario.textContent = bloqueado
                     ? 'Selecione um procedimento e uma profissional para consultar os dias disponiveis.'
                     : 'Datas no passado e dias sem atendimento da profissional ficam bloqueados.';
@@ -859,6 +1544,7 @@
                     botao.textContent = String(dia);
                     botao.setAttribute('role', 'gridcell');
                     botao.setAttribute('aria-label', this.formatarDataLonga(dataNormalizada));
+                    botao.setAttribute('aria-pressed', 'false');
 
                     const ehPassado = dataNormalizada < this.estado.dataBase;
                     const foraAgendaProfissional = profissional && !profissional.diasAtendimento.includes(dataNormalizada.getDay());
@@ -870,6 +1556,7 @@
 
                     if (this.estado.dataSelecionada === iso) {
                         botao.classList.add('is-selecionado');
+                        botao.setAttribute('aria-pressed', 'true');
                     }
 
                     if (desabilitado) {
@@ -902,6 +1589,7 @@
                 this.refs.status.textContent = 'Escolha um horario e confirme na mesma linha.';
                 this.renderizarCalendario();
                 this.renderizarHorarios();
+                this.enquadrarHorariosEmMobile();
             }
 
             renderizarHorarios() {
@@ -928,11 +1616,19 @@
                     botaoHora.type = 'button';
                     botaoHora.textContent = ocupado ? `${hora} indisponivel` : hora;
                     botaoHora.disabled = ocupado;
+                    botaoHora.dataset.ocupado = String(ocupado);
+                    botaoHora.setAttribute('aria-pressed', 'false');
+                    botaoHora.setAttribute('aria-label', ocupado ? `${hora} indisponivel` : `Selecionar horario ${hora}`);
 
                     const botaoConfirmar = document.createElement('button');
                     botaoConfirmar.className = 'agp-confirmar-btn';
                     botaoConfirmar.type = 'button';
                     botaoConfirmar.textContent = 'Confirmar';
+                    botaoConfirmar.disabled = ocupado;
+                    botaoConfirmar.dataset.ocupado = String(ocupado);
+                    botaoConfirmar.tabIndex = -1;
+                    botaoConfirmar.setAttribute('aria-hidden', 'true');
+                    botaoConfirmar.setAttribute('aria-label', `Confirmar horario ${hora}`);
 
                     if (!ocupado) {
                         botaoHora.addEventListener('click', () => this.ativarHorario(linha, hora));
@@ -951,13 +1647,53 @@
             ativarHorario(linha, hora) {
                 this.refs.slots.querySelectorAll('.agp-slot-linha.is-active').forEach((item) => {
                     item.classList.remove('is-active');
+                    const confirmar = item.querySelector('.agp-confirmar-btn');
+                    const horario = item.querySelector('.agp-slot-btn');
+                    if (confirmar) {
+                        confirmar.tabIndex = -1;
+                        confirmar.setAttribute('aria-hidden', 'true');
+                    }
+                    if (horario) {
+                        horario.setAttribute('aria-pressed', 'false');
+                    }
                 });
                 linha.classList.add('is-active');
                 this.estado.horarioSelecionado = hora;
                 this.refs.status.textContent = `Horario selecionado: ${hora}.`;
+
+                const confirmarAtual = linha.querySelector('.agp-confirmar-btn');
+                const horarioAtual = linha.querySelector('.agp-slot-btn');
+                if (confirmarAtual) {
+                    confirmarAtual.tabIndex = 0;
+                    confirmarAtual.setAttribute('aria-hidden', 'false');
+                }
+                if (horarioAtual) {
+                    horarioAtual.setAttribute('aria-pressed', 'true');
+                }
+            }
+
+            enquadrarHorariosEmMobile() {
+                if (!this.refs.horarios || typeof window.matchMedia !== 'function') return;
+                if (window.matchMedia('(max-width: 759px)').matches) {
+                    this.refs.horarios.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            definirConfirmacaoEmAndamento(ativo) {
+                this.estado.confirmando = ativo;
+                this.root.classList.toggle('is-confirming', ativo);
+                this.root.setAttribute('aria-busy', String(ativo));
+                this.refs.limpar.disabled = ativo;
+                this.refs.slots.querySelectorAll('button').forEach((botao) => {
+                    botao.disabled = ativo || botao.dataset.ocupado === 'true';
+                });
             }
 
             async finalizarAgendamento() {
+                if (this.estado.confirmando) {
+                    return;
+                }
+
                 if (!this.validarFormularioTopo() || !this.estado.dataSelecionada || !this.estado.horarioSelecionado) {
                     this.refs.status.textContent = 'Preencha os campos obrigatorios, selecione data e horario.';
                     alert('Revise os dados obrigatorios antes de confirmar.');
@@ -965,6 +1701,8 @@
                 }
 
                 const payload = this.criarPayloadAgendamento();
+                this.definirConfirmacaoEmAndamento(true);
+                this.refs.status.textContent = 'Confirmando agendamento...';
 
                 try {
                     await this.salvarAgendamento(payload);
@@ -975,6 +1713,8 @@
                     console.error('Erro ao finalizar agendamento:', erro);
                     this.refs.status.textContent = 'Nao foi possivel confirmar agora. Tente novamente.';
                     alert('Nao foi possivel salvar o agendamento. Tente novamente.');
+                } finally {
+                    this.definirConfirmacaoEmAndamento(false);
                 }
             }
 
@@ -1082,7 +1822,20 @@
 
             validarFormularioTopo() {
                 const campos = [this.refs.nome, this.refs.whatsapp, this.refs.cpf, this.refs.servico, this.refs.profissional];
-                return campos.map((campo) => this.validarCampo(campo)).every(Boolean);
+                let primeiroInvalido = null;
+
+                campos.forEach((campo) => {
+                    const valido = this.validarCampo(campo);
+                    if (!valido && !primeiroInvalido) {
+                        primeiroInvalido = campo;
+                    }
+                });
+
+                if (primeiroInvalido) {
+                    primeiroInvalido.focus();
+                }
+
+                return !primeiroInvalido;
             }
 
             validarCampo(campo) {
@@ -1113,7 +1866,9 @@
                 const erro = grupo.querySelector('.agp-erro');
                 grupo.classList.toggle('is-valid', valido && campo.value.trim() !== '');
                 grupo.classList.toggle('is-invalid', !valido);
-                erro.textContent = mensagem || 'Campo valido.';
+                campo.setAttribute('aria-invalid', String(!valido));
+                erro.textContent = mensagem || '';
+                erro.hidden = valido;
             }
 
             resetarSelecaoAgenda() {
@@ -1130,7 +1885,12 @@
                 this.root.querySelectorAll('.agp-campo').forEach((campo) => {
                     campo.classList.remove('is-valid', 'is-invalid');
                     const erro = campo.querySelector('.agp-erro');
-                    if (erro) erro.textContent = '';
+                    const controle = campo.querySelector('.agp-input, .agp-select');
+                    if (controle) controle.setAttribute('aria-invalid', 'false');
+                    if (erro) {
+                        erro.textContent = '';
+                        erro.hidden = true;
+                    }
                 });
                 const hoje = this.normalizarData(new Date());
                 this.estado.mes = hoje.getMonth();

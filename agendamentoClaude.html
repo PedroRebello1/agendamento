@@ -2,95 +2,183 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#1a2a4f">
 <title>Agendamento Clínica</title>
 <style>
-  /* ================= VARIÁVEIS DE PALETA ================= */
-  .sa-app {
-    --sa-azul-escuro: #1a2a4f;
-    --sa-azul-escuro-2: #233a6b;
-    --sa-roxo: #6c3fb5;
-    --sa-roxo-claro: #8a5fd6;
-    --sa-prata: #c5ccd6;
-    --sa-prata-claro: #eef1f6;
-    --sa-branco: #ffffff;
-    --sa-cinza-texto: #5a6473;
+  /* ============================================================
+   *  TOKENS DE DESIGN  (mobile-first)
+   * ============================================================ */
+  :root {
+    /* ---- Cores (tema claro) ---- */
+    --sa-bg: #eef1f6;
+    --sa-surface: #ffffff;
+    --sa-surface-2: #f3f5fa;
+    --sa-border: #dde3ec;
+    --sa-text: #1a2a4f;
+    --sa-text-muted: #5a6473;
+
+    --sa-primary: #6c3fb5;
+    --sa-primary-2: #8a5fd6;
+    --sa-accent: #1a2a4f;
+    --sa-accent-2: #233a6b;
+    --sa-on-primary: #ffffff;
 
     --sa-ok-borda: #2e9e5b;
     --sa-ok-fundo: #e9f8ef;
     --sa-erro-borda: #d63b3b;
     --sa-erro-fundo: #fdeeee;
 
-    --sa-radius: 12px;
-    --sa-sombra: 0 8px 30px rgba(26, 42, 79, 0.12);
-    --sa-transicao: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    /* ---- Escala de espaçamento ---- */
+    --sa-sp-1: 4px;
+    --sa-sp-2: 8px;
+    --sa-sp-3: 12px;
+    --sa-sp-4: 16px;
+    --sa-sp-5: 20px;
+    --sa-sp-6: 24px;
+    --sa-sp-8: 32px;
 
+    /* ---- Raio / sombra / movimento ---- */
+    --sa-radius: 14px;
+    --sa-radius-sm: 10px;
+    --sa-sombra: 0 6px 24px rgba(26, 42, 79, 0.10);
+    --sa-sombra-sm: 0 2px 8px rgba(26, 42, 79, 0.08);
+    --sa-transicao: 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+    --sa-tap: 48px; /* alvo de toque mínimo confortável */
+  }
+
+  .sa-app {
     box-sizing: border-box;
-    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: var(--sa-azul-escuro);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--sa-text);
+    width: 100%;
     max-width: 1080px;
-    margin: 24px auto;
-    padding: 0 16px;
+    margin: 0 auto;
+    padding: var(--sa-sp-4) var(--sa-sp-4) var(--sa-sp-8);
+    padding-left: max(var(--sa-sp-4), env(safe-area-inset-left));
+    padding-right: max(var(--sa-sp-4), env(safe-area-inset-right));
+    -webkit-text-size-adjust: 100%;
   }
   .sa-app *, .sa-app *::before, .sa-app *::after { box-sizing: border-box; }
 
-  /* ================= CABEÇALHO / TOPO ================= */
+  /* ============================================================
+   *  BASE / LAYOUT DE PÁGINA
+   * ============================================================ */
+  html, body { margin: 0; padding: 0; overflow-x: hidden; }
+  body {
+    background: var(--sa-bg);
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* ============================================================
+   *  CARTÕES E CABEÇALHO
+   * ============================================================ */
   .sa-card {
-    background: var(--sa-branco);
+    background: var(--sa-surface);
     border-radius: var(--sa-radius);
     box-shadow: var(--sa-sombra);
-    padding: 24px;
-    margin-bottom: 22px;
-    border: 1px solid var(--sa-prata-claro);
+    padding: var(--sa-sp-5);
+    margin-bottom: var(--sa-sp-4);
+    border: 1px solid var(--sa-border);
   }
   .sa-header {
-    background: linear-gradient(120deg, var(--sa-azul-escuro), var(--sa-roxo));
-    color: var(--sa-branco);
+    background: linear-gradient(125deg, var(--sa-accent), var(--sa-primary));
+    color: var(--sa-on-primary);
     border-radius: var(--sa-radius);
-    padding: 22px 24px;
-    margin-bottom: 22px;
+    padding: var(--sa-sp-6) var(--sa-sp-5);
+    margin-bottom: var(--sa-sp-4);
+    box-shadow: var(--sa-sombra);
   }
-  .sa-header h1 { margin: 0 0 4px; font-size: 1.5rem; }
-  .sa-header p { margin: 0; opacity: 0.85; font-size: 0.92rem; }
+  .sa-header h1 {
+    margin: 0 0 var(--sa-sp-1);
+    font-size: 1.4rem;
+    line-height: 1.2;
+    letter-spacing: 0.2px;
+  }
+  .sa-header p { margin: 0; opacity: 0.9; font-size: 0.92rem; line-height: 1.45; }
 
-  /* ================= GRID DE INPUTS ================= */
+  /* ---- Cabeçalho de seção com passo numerado ---- */
+  .sa-section-head {
+    display: flex;
+    align-items: center;
+    gap: var(--sa-sp-3);
+    margin-bottom: var(--sa-sp-5);
+  }
+  .sa-step {
+    flex: none;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, var(--sa-primary), var(--sa-primary-2));
+    color: var(--sa-on-primary);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  .sa-section-head h2 { margin: 0; font-size: 1.1rem; line-height: 1.2; }
+  .sa-section-head p { margin: 2px 0 0; font-size: 0.8rem; color: var(--sa-text-muted); }
+
+  /* ============================================================
+   *  FORMULÁRIO
+   * ============================================================ */
   .sa-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    grid-template-columns: 1fr;       /* mobile: coluna única */
+    gap: var(--sa-sp-4);
   }
   .sa-field { display: flex; flex-direction: column; position: relative; }
   .sa-field label {
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    margin-bottom: 6px;
-    color: var(--sa-azul-escuro);
+    margin-bottom: var(--sa-sp-2);
+    color: var(--sa-text);
   }
-  .sa-field input, .sa-field select {
-    padding: 11px 12px;
-    border: 2px solid var(--sa-prata);
-    border-radius: 8px;
-    font-size: 0.95rem;
-    background: var(--sa-branco);
-    transition: border-color var(--sa-transicao), background var(--sa-transicao);
+  .sa-field input,
+  .sa-field select {
+    width: 100%;
+    min-height: var(--sa-tap);
+    padding: 12px 14px;
+    border: 2px solid var(--sa-border);
+    border-radius: var(--sa-radius-sm);
+    font-size: 16px;                  /* impede zoom automático no iOS */
+    font-family: inherit;
+    background: var(--sa-surface);
+    color: var(--sa-text);
+    transition: border-color var(--sa-transicao), background var(--sa-transicao), box-shadow var(--sa-transicao);
     outline: none;
-    color: var(--sa-azul-escuro);
+    -webkit-appearance: none;
+    appearance: none;
   }
-  .sa-field input:focus, .sa-field select:focus { border-color: var(--sa-roxo); }
+  .sa-field input::placeholder { color: var(--sa-text-muted); opacity: 0.7; }
+  /* Seta personalizada no select */
+  .sa-field select {
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235a6473' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+  }
+  .sa-field input:focus,
+  .sa-field select:focus {
+    border-color: var(--sa-primary);
+    box-shadow: 0 0 0 4px rgba(108, 63, 181, 0.16);
+  }
 
-  /* Estados de validação */
+  /* ---- Estados de validação ---- */
   .sa-field.sa-valid input, .sa-field.sa-valid select {
     border-color: var(--sa-ok-borda);
-    background: var(--sa-ok-fundo);
+    background-color: var(--sa-ok-fundo);
   }
   .sa-field.sa-invalid input, .sa-field.sa-invalid select {
     border-color: var(--sa-erro-borda);
-    background: var(--sa-erro-fundo);
+    background-color: var(--sa-erro-fundo);
   }
   .sa-error-msg {
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     color: var(--sa-erro-borda);
-    margin-top: 4px;
+    margin-top: var(--sa-sp-1);
     min-height: 14px;
     opacity: 0;
     transform: translateY(-3px);
@@ -98,100 +186,119 @@
   }
   .sa-field.sa-invalid .sa-error-msg { opacity: 1; transform: translateY(0); }
 
-  /* Display de valor estimado */
+  /* ---- Caixa de valor estimado ---- */
   .sa-valor-box {
     grid-column: 1 / -1;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--sa-prata-claro);
-    border-radius: 8px;
-    padding: 14px 18px;
-    margin-top: 4px;
+    flex-wrap: wrap;
+    gap: var(--sa-sp-2);
+    background: linear-gradient(120deg, var(--sa-surface-2), var(--sa-surface-2));
+    border: 1px dashed var(--sa-border);
+    border-radius: var(--sa-radius-sm);
+    padding: var(--sa-sp-4) var(--sa-sp-5);
+    margin-top: var(--sa-sp-1);
   }
-  .sa-valor-box span { font-size: 0.9rem; color: var(--sa-cinza-texto); }
+  .sa-valor-box span { font-size: 0.88rem; color: var(--sa-text-muted); }
   .sa-valor-box strong {
-    font-size: 1.4rem;
-    color: var(--sa-roxo);
+    font-size: 1.5rem;
+    color: var(--sa-primary);
     letter-spacing: 0.3px;
+    font-variant-numeric: tabular-nums;
   }
 
-  /* ================= COLUNAS CALENDÁRIO + HORÁRIOS ================= */
+  /* ============================================================
+   *  CALENDÁRIO + HORÁRIOS
+   * ============================================================ */
   .sa-cols {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 22px;
+    grid-template-columns: 1fr;       /* mobile: empilhado */
+    gap: var(--sa-sp-6);
   }
-  .sa-col-title {
-    font-size: 1.05rem;
-    margin: 0 0 14px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--sa-prata-claro);
+  .sa-subtitle {
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin: 0 0 var(--sa-sp-3);
+    padding-bottom: var(--sa-sp-2);
+    border-bottom: 2px solid var(--sa-surface-2);
+    color: var(--sa-text);
   }
-  .sa-disabled-overlay {
-    position: relative;
-  }
+  .sa-disabled-overlay { position: relative; }
   .sa-locked {
     opacity: 0.45;
     pointer-events: none;
     filter: grayscale(0.6);
   }
   .sa-hint {
-    background: var(--sa-prata-claro);
-    border-radius: 8px;
-    padding: 14px;
-    font-size: 0.85rem;
-    color: var(--sa-cinza-texto);
+    background: var(--sa-surface-2);
+    border-radius: var(--sa-radius-sm);
+    padding: var(--sa-sp-5) var(--sa-sp-4);
+    font-size: 0.88rem;
+    color: var(--sa-text-muted);
     text-align: center;
+    line-height: 1.5;
   }
 
-  /* ----- Calendário ----- */
+  /* ---- Navegação do calendário ---- */
   .sa-cal-nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: var(--sa-sp-3);
   }
   .sa-cal-nav button {
-    background: var(--sa-azul-escuro);
-    color: var(--sa-branco);
+    background: var(--sa-accent);
+    color: var(--sa-on-primary);
     border: none;
-    width: 32px; height: 32px;
-    border-radius: 8px;
+    width: 44px; height: 44px;
+    border-radius: var(--sa-radius-sm);
     cursor: pointer;
-    font-size: 1rem;
-    transition: background var(--sa-transicao);
+    font-size: 1.25rem;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    transition: background var(--sa-transicao), transform var(--sa-transicao);
   }
-  .sa-cal-nav button:hover { background: var(--sa-roxo); }
-  .sa-cal-nav strong { font-size: 0.95rem; text-transform: capitalize; }
+  .sa-cal-nav button:hover { background: var(--sa-primary); }
+  .sa-cal-nav button:active { transform: scale(0.94); }
+  .sa-cal-nav strong { font-size: 1rem; text-transform: capitalize; }
 
   .sa-cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+    gap: var(--sa-sp-1);
   }
   .sa-cal-dow {
     text-align: center;
     font-size: 0.7rem;
     font-weight: 700;
-    color: var(--sa-cinza-texto);
-    padding: 4px 0;
+    color: var(--sa-text-muted);
+    padding: var(--sa-sp-1) 0;
+    text-transform: uppercase;
   }
   .sa-day {
     aspect-ratio: 1 / 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
-    font-size: 0.85rem;
+    border-radius: var(--sa-radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
     border: 2px solid transparent;
-    background: var(--sa-prata-claro);
-    transition: all var(--sa-transicao);
+    background: var(--sa-surface-2);
+    transition: background var(--sa-transicao), color var(--sa-transicao), border-color var(--sa-transicao), transform var(--sa-transicao);
     user-select: none;
   }
   .sa-day:hover:not(.sa-day-off):not(.sa-day-empty) {
-    border-color: var(--sa-roxo);
+    border-color: var(--sa-primary);
+  }
+  .sa-day:active:not(.sa-day-off):not(.sa-day-empty) { transform: scale(0.92); }
+  .sa-day:focus-visible {
+    outline: none;
+    border-color: var(--sa-primary);
+    box-shadow: 0 0 0 3px rgba(108, 63, 181, 0.30);
   }
   .sa-day-empty { background: transparent; cursor: default; }
   .sa-day-off {
@@ -199,60 +306,71 @@
     text-decoration: line-through;
     cursor: not-allowed;
     background: transparent;
-    color: var(--sa-cinza-texto);
+    color: var(--sa-text-muted);
   }
   .sa-day-selected {
-    background: var(--sa-roxo);
-    color: var(--sa-branco);
-    border-color: var(--sa-azul-escuro);
+    background: var(--sa-primary);
+    color: var(--sa-on-primary);
+    border-color: var(--sa-accent);
+    font-weight: 700;
   }
 
-  /* ----- Horários (pill buttons) ----- */
-  .sa-slots { display: flex; flex-direction: column; gap: 10px; }
+  /* ---- Horários (pill com confirmação deslizante) ---- */
+  .sa-slots { display: flex; flex-direction: column; gap: var(--sa-sp-3); }
   .sa-slot-row {
     display: flex;
     gap: 0;
     overflow: hidden;
-    border-radius: 10px;
+    border-radius: var(--sa-radius-sm);
   }
   .sa-slot-btn {
     flex: 1 1 100%;
+    min-height: 52px;
     padding: 14px;
-    border: 2px solid var(--sa-prata);
-    background: var(--sa-branco);
-    border-radius: 10px;
+    border: 2px solid var(--sa-border);
+    background: var(--sa-surface);
+    border-radius: var(--sa-radius-sm);
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--sa-azul-escuro);
-    transition: flex-basis var(--sa-transicao), background var(--sa-transicao), color var(--sa-transicao);
+    color: var(--sa-text);
+    font-family: inherit;
+    transition: flex-basis var(--sa-transicao), background var(--sa-transicao), color var(--sa-transicao), border-color var(--sa-transicao);
     white-space: nowrap;
   }
-  .sa-slot-btn:hover:not(:disabled) { border-color: var(--sa-roxo); }
+  .sa-slot-btn:hover:not(:disabled) { border-color: var(--sa-primary); }
+  .sa-slot-btn:focus-visible {
+    outline: none;
+    border-color: var(--sa-primary);
+    box-shadow: 0 0 0 3px rgba(108, 63, 181, 0.25);
+  }
   .sa-slot-btn:disabled {
-    opacity: 0.45;
+    opacity: 0.5;
     cursor: not-allowed;
     text-decoration: line-through;
-    background: var(--sa-prata-claro);
+    background: var(--sa-surface-2);
   }
   .sa-slot-row.sa-slot-active .sa-slot-btn {
     flex-basis: 55%;
-    background: var(--sa-roxo);
-    color: var(--sa-branco);
-    border-color: var(--sa-roxo);
-    border-radius: 10px 0 0 10px;
+    background: var(--sa-primary);
+    color: var(--sa-on-primary);
+    border-color: var(--sa-primary);
+    border-radius: var(--sa-radius-sm) 0 0 var(--sa-radius-sm);
   }
   .sa-confirm-btn {
     flex: 0 0 0%;
     width: 0;
+    min-height: 52px;
     overflow: hidden;
     padding: 0;
     border: none;
     background: var(--sa-ok-borda);
-    color: var(--sa-branco);
+    color: #ffffff;
     font-weight: 700;
+    font-size: 1rem;
+    font-family: inherit;
     cursor: pointer;
-    border-radius: 0 10px 10px 0;
+    border-radius: 0 var(--sa-radius-sm) var(--sa-radius-sm) 0;
     opacity: 0;
     transform: translateX(20px);
     transition: flex-basis var(--sa-transicao), opacity var(--sa-transicao),
@@ -267,30 +385,58 @@
     transform: translateX(0);
   }
   .sa-confirm-btn:hover { background: #25864c; }
-
-  /* ================= RESPONSIVO ================= */
-  @media (max-width: 720px) {
-    .sa-grid { grid-template-columns: 1fr; }
-    .sa-cols { grid-template-columns: 1fr; }
+  .sa-confirm-btn:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.55);
   }
 
-  /* ================= TOAST DE SUCESSO ================= */
+  /* ============================================================
+   *  BREAKPOINTS (progressivo)
+   * ============================================================ */
+  @media (min-width: 560px) {
+    .sa-app { padding: var(--sa-sp-6); }
+    .sa-grid { grid-template-columns: repeat(2, 1fr); }
+    .sa-header h1 { font-size: 1.6rem; }
+  }
+  @media (min-width: 900px) {
+    .sa-card { padding: var(--sa-sp-6); }
+    .sa-cols { grid-template-columns: 1fr 1fr; gap: var(--sa-sp-8); }
+  }
+
+  /* ============================================================
+   *  TOAST
+   * ============================================================ */
   .sa-toast {
     position: fixed;
-    top: 24px;
-    right: 24px;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    bottom: max(16px, env(safe-area-inset-bottom));
     background: var(--sa-ok-borda);
-    color: var(--sa-branco);
-    padding: 16px 20px;
-    border-radius: 10px;
+    color: #ffffff;
+    padding: var(--sa-sp-4) var(--sa-sp-5);
+    border-radius: var(--sa-radius-sm);
     box-shadow: var(--sa-sombra);
-    transform: translateX(140%);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(180%);
+    transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 999;
-    max-width: 320px;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
+    line-height: 1.4;
   }
-  .sa-toast.sa-toast-show { transform: translateX(0); }
+  .sa-toast.sa-toast-show { transform: translateY(0); }
+  @media (min-width: 560px) {
+    .sa-toast {
+      left: auto;
+      right: 24px;
+      bottom: 24px;
+      max-width: 360px;
+    }
+  }
+
+  /* ---- Acessibilidade: movimento reduzido ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .sa-app *, .sa-toast { transition: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -302,25 +448,36 @@
     <p>Selecione o procedimento, o profissional, a data e o horário desejado.</p>
   </header>
 
-  <!-- TOPO: COLETA DE DADOS -->
-  <section class="sa-card">
+  <!-- PASSO 1: DADOS -->
+  <section class="sa-card" aria-labelledby="sa-head-dados">
+    <div class="sa-section-head">
+      <span class="sa-step" aria-hidden="true">1</span>
+      <div>
+        <h2 id="sa-head-dados">Seus dados</h2>
+        <p>Informe seus dados e o que deseja agendar.</p>
+      </div>
+    </div>
+
     <div class="sa-grid">
       <div class="sa-field" data-field="nome">
         <label for="sa-nome">Nome completo</label>
-        <input type="text" id="sa-nome" autocomplete="name" placeholder="Ex.: Maria da Silva">
-        <span class="sa-error-msg"></span>
+        <input type="text" id="sa-nome" autocomplete="name" autocapitalize="words"
+               placeholder="Ex.: Maria da Silva">
+        <span class="sa-error-msg" aria-live="polite"></span>
       </div>
 
       <div class="sa-field" data-field="cpf">
         <label for="sa-cpf">CPF</label>
-        <input type="text" id="sa-cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14">
-        <span class="sa-error-msg"></span>
+        <input type="text" id="sa-cpf" inputmode="numeric" autocomplete="off"
+               placeholder="000.000.000-00" maxlength="14">
+        <span class="sa-error-msg" aria-live="polite"></span>
       </div>
 
       <div class="sa-field" data-field="whatsapp">
         <label for="sa-whatsapp">WhatsApp</label>
-        <input type="tel" id="sa-whatsapp" inputmode="numeric" placeholder="(00) 00000-0000" maxlength="15">
-        <span class="sa-error-msg"></span>
+        <input type="tel" id="sa-whatsapp" inputmode="numeric" autocomplete="tel"
+               placeholder="(00) 00000-0000" maxlength="15">
+        <span class="sa-error-msg" aria-live="polite"></span>
       </div>
 
       <div class="sa-field" data-field="servico">
@@ -328,7 +485,7 @@
         <select id="sa-servico">
           <option value="">Selecione...</option>
         </select>
-        <span class="sa-error-msg"></span>
+        <span class="sa-error-msg" aria-live="polite"></span>
       </div>
 
       <div class="sa-field" data-field="medico">
@@ -336,7 +493,7 @@
         <select id="sa-medico">
           <option value="">Selecione...</option>
         </select>
-        <span class="sa-error-msg"></span>
+        <span class="sa-error-msg" aria-live="polite"></span>
       </div>
 
       <div class="sa-valor-box">
@@ -346,32 +503,40 @@
     </div>
   </section>
 
-  <!-- BASE: CALENDÁRIO + HORÁRIOS -->
-  <section class="sa-card">
-    <div class="sa-cols">
-      <!-- COLUNA ESQUERDA: CALENDÁRIO -->
+  <!-- PASSO 2: DATA + HORÁRIO -->
+  <section class="sa-card" aria-labelledby="sa-head-agenda">
+    <div class="sa-section-head">
+      <span class="sa-step" aria-hidden="true">2</span>
       <div>
-        <h2 class="sa-col-title">Escolha a data</h2>
+        <h2 id="sa-head-agenda">Data e horário</h2>
+        <p>Escolha o dia e o horário disponíveis.</p>
+      </div>
+    </div>
+
+    <div class="sa-cols">
+      <!-- CALENDÁRIO -->
+      <div>
+        <h3 class="sa-subtitle">Escolha a data</h3>
         <div id="sa-cal-wrap" class="sa-disabled-overlay">
           <div class="sa-cal-nav">
             <button type="button" id="sa-prev" aria-label="Mês anterior">‹</button>
-            <strong id="sa-cal-label"></strong>
+            <strong id="sa-cal-label" aria-live="polite"></strong>
             <button type="button" id="sa-next" aria-label="Próximo mês">›</button>
           </div>
-          <div class="sa-cal-grid" id="sa-cal-grid"></div>
+          <div class="sa-cal-grid" id="sa-cal-grid" role="grid" aria-label="Dias do mês"></div>
         </div>
       </div>
 
-      <!-- COLUNA DIREITA: HORÁRIOS -->
+      <!-- HORÁRIOS -->
       <div>
-        <h2 class="sa-col-title">Horários disponíveis</h2>
+        <h3 class="sa-subtitle">Horários disponíveis</h3>
         <div id="sa-slots-wrap" class="sa-slots"></div>
       </div>
     </div>
   </section>
 </div>
 
-<div class="sa-toast" id="sa-toast"></div>
+<div class="sa-toast" id="sa-toast" role="status" aria-live="polite"></div>
 
 <script>
 "use strict";
@@ -527,6 +692,10 @@ class SistemaAgendamentoUI {
     wrap.classList.toggle("sa-valid", ok);
     wrap.classList.toggle("sa-invalid", !ok);
     wrap.querySelector(".sa-error-msg").textContent = ok ? "" : resultado;
+
+    // Acessibilidade: marca o controle como inválido para leitores de tela
+    const ctrl = wrap.querySelector("input, select");
+    if (ctrl) ctrl.setAttribute("aria-invalid", ok ? "false" : "true");
     return ok;
   }
 
@@ -656,11 +825,26 @@ class SistemaAgendamentoUI {
 
       if (passado || naoAtende) {
         cel.classList.add("sa-day-off");
+        cel.setAttribute("aria-disabled", "true");
       } else {
-        cel.addEventListener("click", () => this._selecionarData(iso));
+        // Acessível por teclado: foco + Enter/Espaço selecionam o dia
+        cel.setAttribute("role", "button");
+        cel.tabIndex = 0;
+        cel.setAttribute("aria-label", this._formatarDataBR(iso));
+        const selecionar = () => this._selecionarData(iso);
+        cel.addEventListener("click", selecionar);
+        cel.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            selecionar();
+          }
+        });
       }
 
-      if (iso === this.estado.dataSelecionada) cel.classList.add("sa-day-selected");
+      if (iso === this.estado.dataSelecionada) {
+        cel.classList.add("sa-day-selected");
+        cel.setAttribute("aria-pressed", "true");
+      }
       grid.appendChild(cel);
     }
   }
@@ -703,6 +887,7 @@ class SistemaAgendamentoUI {
       btn.className = "sa-slot-btn";
       btn.textContent = hora;
       btn.disabled = ocupado;
+      if (ocupado) btn.setAttribute("aria-label", `${hora} indisponível`);
 
       const confirm = document.createElement("button");
       confirm.type = "button";
@@ -715,6 +900,7 @@ class SistemaAgendamentoUI {
             .forEach(r => r.classList.remove("sa-slot-active"));
         row.classList.add("sa-slot-active");
         this.estado.horaSelecionada = hora;
+        confirm.focus();
       });
 
       confirm.addEventListener("click", () => this._submeter(hora));
@@ -758,6 +944,8 @@ class SistemaAgendamentoUI {
     // Bloqueia se houver campos inválidos
     if (!this._validarFormCompleto(true)) {
       this._toast("Verifique os campos destacados antes de confirmar.", true);
+      const primeiroInvalido = this.root.querySelector(".sa-field.sa-invalid input, .sa-field.sa-invalid select");
+      if (primeiroInvalido) primeiroInvalido.focus();
       return;
     }
     if (!this.estado.dataSelecionada || !this.estado.horaSelecionada) {
