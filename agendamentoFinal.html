@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0B192C">
+<title>Agendamento Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+   *  DESIGN TOKENS (mobile-first)
+   *  Sistema de design unificado: paleta elegante (Gemini),
+   *  escala de espaçamento e raios (GPT), tokens semânticos (Claude).
+   * ============================================================ */
+  :root {
+    /* ---- Cores ---- */
+    --ag-primary: #7E57C2;
+    --ag-primary-hover: #5E35B1;
+    --ag-primary-soft: #EDE7F6;
+    --ag-secondary: #0B192C;
+    --ag-secondary-soft: #233a6b;
+
+    --ag-bg: #F4F6F9;
+    --ag-surface: #FFFFFF;
+    --ag-surface-2: #F3F5FA;
+    --ag-border: #E5E7EB;
+    --ag-text: #1F2937;
+    --ag-text-muted: #6B7280;
+
+    --ag-ok: #10B981;
+    --ag-ok-hover: #059669;
+    --ag-ok-bg: #ECFDF5;
+    --ag-error: #EF4444;
+    --ag-error-bg: #FEF2F2;
+    --ag-on-primary: #FFFFFF;
+
+    /* ---- Espaçamento ---- */
+    --ag-sp-1: 4px;
+    --ag-sp-2: 8px;
+    --ag-sp-3: 12px;
+    --ag-sp-4: 16px;
+    --ag-sp-5: 20px;
+    --ag-sp-6: 24px;
+    --ag-sp-8: 32px;
+
+    /* ---- Raio / sombra / movimento ---- */
+    --ag-radius: 16px;
+    --ag-radius-md: 12px;
+    --ag-radius-sm: 10px;
+    --ag-shadow: 0 6px 24px rgba(11, 25, 44, 0.10);
+    --ag-shadow-sm: 0 2px 8px rgba(11, 25, 44, 0.06);
+    --ag-transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    --ag-tap: 48px; /* alvo de toque mínimo confortável */
+
+    --ag-font: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  html, body { margin: 0; padding: 0; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--ag-bg);
+    color: var(--ag-text);
+    font-family: var(--ag-font);
+    min-height: 100vh;
+    min-height: 100dvh;
+    line-height: 1.5;
+  }
+
+  .ag-app {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 940px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ag-sp-4);
+    padding: var(--ag-sp-4);
+    padding-left: max(var(--ag-sp-4), env(safe-area-inset-left));
+    padding-right: max(var(--ag-sp-4), env(safe-area-inset-right));
+    padding-bottom: var(--ag-sp-8);
+  }
+  .ag-app *, .ag-app *::before, .ag-app *::after {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ============================================================
+   *  CABEÇALHO
+   * ============================================================ */
+  .ag-header {
+    text-align: center;
+    padding: var(--ag-sp-5) var(--ag-sp-4) var(--ag-sp-2);
+    animation: agFadeInDown 0.4s ease;
+  }
+  .ag-header h1 {
+    margin: 0 0 var(--ag-sp-1);
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    color: var(--ag-secondary);
+  }
+  .ag-header p { margin: 0; color: var(--ag-text-muted); font-size: 0.95rem; }
+
+  /* ============================================================
+   *  CARTÕES + CABEÇALHO DE SEÇÃO
+   * ============================================================ */
+  .ag-card {
+    background: var(--ag-surface);
+    border-radius: var(--ag-radius);
+    box-shadow: var(--ag-shadow-sm);
+    border: 1px solid var(--ag-border);
+    padding: var(--ag-sp-6);
+    animation: agFadeIn 0.5s ease;
+  }
+  .ag-section-head {
+    display: flex;
+    align-items: center;
+    gap: var(--ag-sp-3);
+    margin-bottom: var(--ag-sp-5);
+  }
+  .ag-step {
+    flex: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, var(--ag-primary), var(--ag-primary-hover));
+    color: var(--ag-on-primary);
+    font-size: 0.95rem;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(126, 87, 194, 0.3);
+  }
+  .ag-section-head h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ag-secondary);
+    line-height: 1.2;
+  }
+  .ag-section-head p { margin: 2px 0 0; font-size: 0.82rem; color: var(--ag-text-muted); }
+
+  .ag-subtitle {
+    display: flex;
+    align-items: center;
+    gap: var(--ag-sp-2);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ag-secondary);
+    margin: 0 0 var(--ag-sp-4);
+  }
+  .ag-subtitle svg { color: var(--ag-primary); flex: none; }
+
+  /* ============================================================
+   *  FORMULÁRIO
+   * ============================================================ */
+  .ag-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ag-sp-4);
+  }
+  .ag-field { display: flex; flex-direction: column; min-width: 0; }
+  .ag-field label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ag-sp-2);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ag-secondary);
+    margin-bottom: var(--ag-sp-2);
+  }
+  .ag-field input,
+  .ag-field select {
+    width: 100%;
+    min-height: var(--ag-tap);
+    padding: 13px 15px;
+    border: 1.5px solid var(--ag-border);
+    border-radius: var(--ag-radius-md);
+    font-size: 16px;                 /* impede zoom automático no iOS */
+    font-family: inherit;
+    background: var(--ag-surface);
+    color: var(--ag-text);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color var(--ag-transition), background var(--ag-transition), box-shadow var(--ag-transition);
+  }
+  .ag-field input::placeholder { color: var(--ag-text-muted); opacity: 0.7; }
+  .ag-field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 42px;
+  }
+  .ag-field input:focus,
+  .ag-field select:focus {
+    border-color: var(--ag-primary);
+    box-shadow: 0 0 0 4px rgba(126, 87, 194, 0.15);
+  }
+
+  /* ---- Estados de validação ---- */
+  .ag-field.is-valid input, .ag-field.is-valid select {
+    border-color: var(--ag-ok);
+    background-color: var(--ag-ok-bg);
+  }
+  .ag-field.is-invalid input, .ag-field.is-invalid select {
+    border-color: var(--ag-error);
+    background-color: var(--ag-error-bg);
+  }
+  .ag-error-msg {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ag-error);
+    margin-top: var(--ag-sp-1);
+    min-height: 14px;
+    opacity: 0;
+    transform: translateY(-3px);
+    transition: opacity var(--ag-transition), transform var(--ag-transition);
+  }
+  .ag-field.is-invalid .ag-error-msg { opacity: 1; transform: translateY(0); }
+
+  /* ---- Caixa de valor estimado ---- */
+  .ag-valor-box {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--ag-sp-2);
+    background: var(--ag-primary-soft);
+    border-radius: var(--ag-radius-md);
+    padding: var(--ag-sp-4) var(--ag-sp-5);
+    margin-top: var(--ag-sp-1);
+  }
+  .ag-valor-box span { font-size: 0.84rem; font-weight: 600; color: var(--ag-primary-hover); }
+  .ag-valor-box strong {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--ag-primary-hover);
+    letter-spacing: 0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ============================================================
+   *  AGENDADOR (calendário + horários)
+   * ============================================================ */
+  .ag-scheduler {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ag-sp-6);
+  }
+
+  /* ---- Bloqueio do calendário ---- */
+  .ag-cal-shell { position: relative; }
+  .ag-lock-msg {
+    display: none;
+    margin-bottom: var(--ag-sp-4);
+    padding: var(--ag-sp-3) var(--ag-sp-4);
+    border-radius: var(--ag-radius-md);
+    background: var(--ag-surface-2);
+    border: 1px dashed var(--ag-border);
+    color: var(--ag-text-muted);
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+  .ag-cal-shell.is-locked .ag-lock-msg { display: block; }
+  .ag-cal-shell.is-locked .ag-days-grid { opacity: 0.45; pointer-events: none; filter: grayscale(0.5); }
+
+  /* ---- Navegação ---- */
+  .ag-cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--ag-sp-4);
+  }
+  .ag-icon-btn {
+    width: 44px; height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: var(--ag-surface-2);
+    color: var(--ag-text-muted);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: background var(--ag-transition), color var(--ag-transition), transform var(--ag-transition);
+  }
+  .ag-icon-btn:hover:not(:disabled) { background: var(--ag-primary-soft); color: var(--ag-primary); }
+  .ag-icon-btn:active:not(:disabled) { transform: scale(0.92); }
+  .ag-icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .ag-icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.35); }
+  .ag-month-year {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ag-secondary);
+    text-transform: capitalize;
+  }
+
+  /* ---- Grade do calendário ---- */
+  .ag-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ag-text-muted);
+    text-transform: uppercase;
+    margin-bottom: var(--ag-sp-2);
+  }
+  .ag-days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--ag-sp-1);
+    transition: opacity var(--ag-transition), filter var(--ag-transition);
+  }
+  .ag-day {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-width: 46px;
+    margin: 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid transparent;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ag-text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--ag-transition), color var(--ag-transition), border-color var(--ag-transition), transform var(--ag-transition), box-shadow var(--ag-transition);
+  }
+  .ag-day:hover:not(:disabled) { background: var(--ag-primary-soft); color: var(--ag-primary); }
+  .ag-day:active:not(:disabled) { transform: scale(0.9); }
+  .ag-day:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.35); }
+  .ag-day.is-today { border-color: var(--ag-primary); }
+  .ag-day.is-selected {
+    background: var(--ag-primary);
+    color: var(--ag-on-primary);
+    border-color: var(--ag-primary);
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(126, 87, 194, 0.4);
+  }
+  .ag-day:disabled {
+    color: #C5CBD3;
+    cursor: not-allowed;
+    text-decoration: line-through;
+    text-decoration-color: var(--ag-border);
+  }
+  .ag-day-empty { aspect-ratio: 1 / 1; }
+
+  /* ---- Legenda ---- */
+  .ag-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ag-sp-2) var(--ag-sp-4);
+    margin-top: var(--ag-sp-4);
+    color: var(--ag-text-muted);
+    font-size: 0.78rem;
+  }
+  .ag-legend-item { display: inline-flex; align-items: center; gap: var(--ag-sp-2); }
+  .ag-legend-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--ag-primary); }
+  .ag-legend-dot.is-off { background: #D1D5DB; }
+
+  /* ============================================================
+   *  HORÁRIOS
+   * ============================================================ */
+  .ag-time-col { display: flex; flex-direction: column; }
+  .ag-selected-date {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ag-primary-hover);
+    text-align: center;
+    background: var(--ag-primary-soft);
+    padding: var(--ag-sp-3);
+    border-radius: var(--ag-radius-md);
+    margin-bottom: var(--ag-sp-4);
+  }
+  .ag-slots {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ag-sp-3);
+    flex: 1;
+  }
+
+  .ag-slot-row {
+    display: flex;
+    gap: var(--ag-sp-2);
+    align-items: stretch;
+    animation: agFadeIn 0.3s ease;
+  }
+  .ag-slot-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 52px;
+    padding: 14px;
+    border: 1.5px solid var(--ag-primary);
+    border-radius: var(--ag-radius-md);
+    background: var(--ag-surface);
+    color: var(--ag-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: flex var(--ag-transition), background var(--ag-transition), color var(--ag-transition), border-color var(--ag-transition), transform var(--ag-transition);
+  }
+  .ag-slot-btn:hover:not(:disabled) { background: var(--ag-primary-soft); }
+  .ag-slot-btn:active:not(:disabled) { transform: scale(0.98); }
+  .ag-slot-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.3); }
+  .ag-slot-btn:disabled {
+    border-color: var(--ag-border);
+    background: var(--ag-surface-2);
+    color: var(--ag-text-muted);
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+  .ag-slot-row.is-active .ag-slot-btn {
+    flex: 0 1 52%;
+    background: var(--ag-secondary);
+    color: var(--ag-on-primary);
+    border-color: var(--ag-secondary);
+  }
+
+  .ag-confirm-btn {
+    flex: 0 0 0;
+    width: 0;
+    min-width: 0;
+    min-height: 52px;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    border-radius: var(--ag-radius-md);
+    background: var(--ag-ok);
+    color: var(--ag-on-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: flex var(--ag-transition), opacity var(--ag-transition), padding var(--ag-transition), transform var(--ag-transition);
+  }
+  .ag-slot-row.is-active .ag-confirm-btn {
+    flex: 1 1 48%;
+    width: auto;
+    padding: 14px 12px;
+    opacity: 1;
+    pointer-events: auto;
+    animation: agSlideInRight 0.22s ease both;
+  }
+  .ag-confirm-btn:hover:not(:disabled) { background: var(--ag-ok-hover); }
+  .ag-confirm-btn:active:not(:disabled) { transform: scale(0.98); }
+  .ag-confirm-btn:focus-visible { outline: none; box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.6); }
+
+  /* Estado "confirmando" (cursor de progresso durante a gravação) */
+  .ag-app.is-confirming .ag-slot-btn,
+  .ag-app.is-confirming .ag-confirm-btn,
+  .ag-app.is-confirming .ag-day,
+  .ag-app.is-confirming .ag-btn-ghost { cursor: progress; }
+
+  /* ---- Estado vazio ---- */
+  .ag-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: var(--ag-text-muted);
+    padding: var(--ag-sp-8) var(--ag-sp-4);
+    gap: var(--ag-sp-4);
+  }
+  .ag-empty svg { color: #CBD5E1; }
+  .ag-empty p { margin: 0; font-size: 0.92rem; line-height: 1.5; max-width: 36ch; }
+
+  /* ---- Rodapé do agendador ---- */
+  .ag-footer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ag-sp-3);
+    margin-top: var(--ag-sp-5);
+    padding-top: var(--ag-sp-4);
+    border-top: 1px solid var(--ag-border);
+  }
+  .ag-status { margin: 0; font-size: 0.85rem; color: var(--ag-text-muted); line-height: 1.4; }
+  .ag-btn-ghost {
+    min-height: 46px;
+    padding: 0 var(--ag-sp-5);
+    border: 1.5px solid var(--ag-border);
+    border-radius: var(--ag-radius-md);
+    background: var(--ag-surface);
+    color: var(--ag-secondary);
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color var(--ag-transition), color var(--ag-transition), background var(--ag-transition);
+  }
+  .ag-btn-ghost:hover:not(:disabled) { border-color: var(--ag-primary); color: var(--ag-primary); background: var(--ag-primary-soft); }
+  .ag-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ag-btn-ghost:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.3); }
+
+  /* ============================================================
+   *  TOAST (notificações com ícone — substitui alert)
+   * ============================================================ */
+  .ag-toast-container {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    bottom: max(24px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ag-sp-2);
+    width: calc(100% - 32px);
+    max-width: 420px;
+    pointer-events: none;
+  }
+  .ag-toast {
+    display: flex;
+    align-items: center;
+    gap: var(--ag-sp-3);
+    background: var(--ag-secondary);
+    color: #fff;
+    padding: var(--ag-sp-4) var(--ag-sp-5);
+    border-radius: var(--ag-radius-md);
+    box-shadow: 0 8px 24px rgba(11, 25, 44, 0.2);
+    font-size: 0.92rem;
+    font-weight: 500;
+    line-height: 1.4;
+    pointer-events: auto;
+    animation: agSlideUp 0.3s ease forwards;
+  }
+  .ag-toast svg { flex: none; }
+  .ag-toast.is-success { background: var(--ag-ok); }
+  .ag-toast.is-error { background: var(--ag-error); }
+
+  /* ============================================================
+   *  ANIMAÇÕES
+   * ============================================================ */
+  @keyframes agFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes agFadeInDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes agSlideInRight { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes agSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes agFadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(10px); } }
+
+  /* ============================================================
+   *  BREAKPOINTS (progressivo)
+   * ============================================================ */
+  @media (min-width: 600px) {
+    .ag-app { padding: var(--ag-sp-6); gap: var(--ag-sp-6); }
+    .ag-form { grid-template-columns: repeat(2, 1fr); }
+    .ag-header h1 { font-size: 2rem; }
+    .ag-footer { flex-direction: row; align-items: center; justify-content: space-between; }
+    .ag-status { flex: 1; }
+    .ag-btn-ghost { flex: none; }
+  }
+  @media (min-width: 880px) {
+    .ag-scheduler {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--ag-sp-8);
+      align-items: stretch;
+    }
+    .ag-calendar-col, .ag-time-col { display: flex; flex-direction: column; }
+  }
+
+  /* ---- Acessibilidade: movimento reduzido ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .ag-app *, .ag-toast, .ag-header { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ag-app" id="ag-app">
+  <!-- CABEÇALHO -->
+  <header class="ag-header">
+    <h1>Agendamento Online</h1>
+    <p>Selecione o procedimento, o profissional, a data e o horário.</p>
+  </header>
+
+  <!-- PASSO 1: DADOS -->
+  <section class="ag-card" aria-labelledby="ag-head-dados">
+    <div class="ag-section-head">
+      <span class="ag-step" aria-hidden="true">1</span>
+      <div>
+        <h2 id="ag-head-dados">Seus dados</h2>
+        <p>Informe seus dados e o que deseja agendar.</p>
+      </div>
+    </div>
+
+    <form class="ag-form" id="ag-form" novalidate>
+      <div class="ag-field" data-field="nome">
+        <label for="ag-nome">Nome completo</label>
+        <input type="text" id="ag-nome" name="nome" autocomplete="name" autocapitalize="words"
+               spellcheck="false" enterkeyhint="next" placeholder="Ex.: Maria da Silva"
+               aria-describedby="ag-nome-erro" aria-invalid="false" required>
+        <span class="ag-error-msg" id="ag-nome-erro" aria-live="polite"></span>
+      </div>
+
+      <div class="ag-field" data-field="cpf">
+        <label for="ag-cpf">CPF</label>
+        <input type="text" id="ag-cpf" name="cpf" inputmode="numeric" autocomplete="off"
+               enterkeyhint="next" placeholder="000.000.000-00" maxlength="14"
+               aria-describedby="ag-cpf-erro" aria-invalid="false" required>
+        <span class="ag-error-msg" id="ag-cpf-erro" aria-live="polite"></span>
+      </div>
+
+      <div class="ag-field" data-field="whatsapp">
+        <label for="ag-whatsapp">WhatsApp</label>
+        <input type="tel" id="ag-whatsapp" name="whatsapp" inputmode="numeric" autocomplete="tel"
+               enterkeyhint="next" placeholder="(00) 00000-0000" maxlength="15"
+               aria-describedby="ag-whatsapp-erro" aria-invalid="false" required>
+        <span class="ag-error-msg" id="ag-whatsapp-erro" aria-live="polite"></span>
+      </div>
+
+      <div class="ag-field" data-field="servico">
+        <label for="ag-servico">Procedimento</label>
+        <select id="ag-servico" name="servico" aria-describedby="ag-servico-erro" aria-invalid="false" required>
+          <option value="">Selecione...</option>
+        </select>
+        <span class="ag-error-msg" id="ag-servico-erro" aria-live="polite"></span>
+      </div>
+
+      <div class="ag-field" data-field="medico">
+        <label for="ag-medico">Profissional</label>
+        <select id="ag-medico" name="medico" aria-describedby="ag-medico-erro" aria-invalid="false" required>
+          <option value="">Selecione...</option>
+        </select>
+        <span class="ag-error-msg" id="ag-medico-erro" aria-live="polite"></span>
+      </div>
+
+      <div class="ag-valor-box" aria-live="polite">
+        <span>Valor estimado do procedimento</span>
+        <strong id="ag-valor">R$ 0,00</strong>
+      </div>
+    </form>
+  </section>
+
+  <!-- PASSO 2: DATA + HORÁRIO -->
+  <section class="ag-card" aria-labelledby="ag-head-agenda">
+    <div class="ag-section-head">
+      <span class="ag-step" aria-hidden="true">2</span>
+      <div>
+        <h2 id="ag-head-agenda">Data e horário</h2>
+        <p>Escolha o dia e o horário disponíveis.</p>
+      </div>
+    </div>
+
+    <div class="ag-scheduler">
+      <!-- CALENDÁRIO -->
+      <div class="ag-calendar-col">
+        <h3 class="ag-subtitle">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          Escolha a data
+        </h3>
+
+        <div class="ag-cal-shell is-locked" id="ag-cal-shell">
+          <div class="ag-lock-msg" id="ag-lock-msg">Selecione um procedimento e um profissional para liberar a agenda.</div>
+
+          <div class="ag-cal-nav">
+            <button class="ag-icon-btn" id="ag-prev" type="button" aria-label="Mês anterior">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <span class="ag-month-year" id="ag-month-year" aria-live="polite"></span>
+            <button class="ag-icon-btn" id="ag-next" type="button" aria-label="Próximo mês">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+
+          <div class="ag-weekdays" aria-hidden="true">
+            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+          </div>
+          <div class="ag-days-grid" id="ag-days-grid" role="grid" aria-label="Dias do mês"></div>
+
+          <div class="ag-legend" aria-hidden="true">
+            <span class="ag-legend-item"><span class="ag-legend-dot"></span>Disponível</span>
+            <span class="ag-legend-item"><span class="ag-legend-dot is-off"></span>Indisponível</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- HORÁRIOS -->
+      <div class="ag-time-col">
+        <h3 class="ag-subtitle">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          Horários disponíveis
+        </h3>
+
+        <div class="ag-selected-date" id="ag-selected-date" hidden></div>
+
+        <div class="ag-slots" id="ag-slots" aria-live="polite"></div>
+
+        <div class="ag-footer">
+          <p class="ag-status" id="ag-status" role="status" aria-live="polite">O horário escolhido é confirmado no mesmo clique.</p>
+          <button class="ag-btn-ghost" id="ag-clear" type="button">Limpar dados</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="ag-toast-container" id="ag-toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+"use strict";
+
+/**
+ * SistemaAgendamentoUI
+ * Componente autônomo de agendamento client-side.
+ * Reúne: validação robusta + máscaras (CPF/telefone), agenda por profissional,
+ * detecção de conflito, fluxo de envio assíncrono com estado de carregamento,
+ * notificações via toast e ponto único de integração com backend (mock).
+ */
+class SistemaAgendamentoUI {
+
+  constructor(rootId) {
+    this.root = document.getElementById(rootId);
+    this.STORAGE_KEY = "ag_agendamentos";
+    this.SENHA_PROVISORIA_LEN = 8;
+
+    /* ----- Catálogo (substituível por fetch ao backend) ----- */
+    this.servicos = [
+      { id: "harmonizacao", nome: "Harmonização Facial",  valor: 1500.0 },
+      { id: "botox",        nome: "Toxina Botulínica",    valor: 1200.0 },
+      { id: "preenchimento",nome: "Preenchimento Labial", valor: 950.0 },
+      { id: "limpeza",      nome: "Limpeza de Pele",      valor: 280.0 },
+      { id: "peeling",      nome: "Peeling Químico",      valor: 350.0 }
+    ];
+
+    /* diasAtendimento: 0=Dom 1=Seg ... 6=Sáb · slots por profissional */
+    this.medicos = [
+      { id: "dra_livia",  nome: "Dra. Lívia Martins", diasAtendimento: [1, 3, 5], slots: ["08:00","09:00","10:00","11:00","14:00","15:00"] },
+      { id: "dra_marina", nome: "Dra. Marina Souza",  diasAtendimento: [2, 4],    slots: ["09:00","10:00","11:00","14:00","15:00","16:00"] },
+      { id: "dra_carla",  nome: "Dra. Carla Mendes",  diasAtendimento: [1, 2, 4], slots: ["08:30","09:30","10:30","13:00","14:00","15:00","16:00"] }
+    ];
+
+    this.meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+    this.diasSemana = ["Domingo","Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado"];
+    this.diasAbrev = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+
+    const hoje = this._normalizar(new Date());
+    this.estado = {
+      hoje,
+      mes: hoje.getMonth(),
+      ano: hoje.getFullYear(),
+      dataSelecionada: null,   // "YYYY-MM-DD"
+      horaSelecionada: null,
+      confirmando: false
+    };
+
+    this._cacheEls();
+    this._popularSelects();
+    this._bindEventos();
+    this._atualizarValor();
+    this._atualizarBloqueio();
+    this._renderCalendario();
+  }
+
+  /* =================================================================
+   *  SETUP
+   * ================================================================= */
+  _cacheEls() {
+    const $ = (sel) => this.root.querySelector(sel);
+    this.els = {
+      form:      $("#ag-form"),
+      nome:      $("#ag-nome"),
+      cpf:       $("#ag-cpf"),
+      whatsapp:  $("#ag-whatsapp"),
+      servico:   $("#ag-servico"),
+      medico:    $("#ag-medico"),
+      valor:     $("#ag-valor"),
+      calShell:  $("#ag-cal-shell"),
+      lockMsg:   $("#ag-lock-msg"),
+      monthYear: $("#ag-month-year"),
+      daysGrid:  $("#ag-days-grid"),
+      prev:      $("#ag-prev"),
+      next:      $("#ag-next"),
+      selDate:   $("#ag-selected-date"),
+      slots:     $("#ag-slots"),
+      status:    $("#ag-status"),
+      clear:     $("#ag-clear"),
+      toastWrap: document.getElementById("ag-toast-container")
+    };
+    // mapa campo -> input/select (para validação)
+    this.controles = {
+      nome: this.els.nome, cpf: this.els.cpf, whatsapp: this.els.whatsapp,
+      servico: this.els.servico, medico: this.els.medico
+    };
+  }
+
+  _popularSelects() {
+    const fragS = document.createDocumentFragment();
+    this.servicos.forEach(s => {
+      const o = document.createElement("option");
+      o.value = s.id;
+      o.textContent = `${s.nome} — ${this._brl(s.valor)}`;
+      fragS.appendChild(o);
+    });
+    this.els.servico.appendChild(fragS);
+
+    const fragM = document.createDocumentFragment();
+    this.medicos.forEach(m => {
+      const o = document.createElement("option");
+      o.value = m.id;
+      o.textContent = `${m.nome} (${m.diasAtendimento.map(d => this.diasAbrev[d]).join(", ")})`;
+      fragM.appendChild(o);
+    });
+    this.els.medico.appendChild(fragM);
+  }
+
+  _bindEventos() {
+    // Validação + máscaras em tempo real
+    ["nome", "cpf", "whatsapp"].forEach(campo => {
+      const input = this.controles[campo];
+      input.addEventListener("blur", () => this._validarCampo(campo));
+      input.addEventListener("input", () => {
+        if (campo === "cpf")      input.value = this._maskCPF(input.value);
+        if (campo === "whatsapp") input.value = this._maskTel(input.value);
+        // revalida ao vivo somente se já estava inválido (UX menos agressiva)
+        if (this._wrap(campo).classList.contains("is-invalid")) this._validarCampo(campo);
+      });
+    });
+
+    this.els.servico.addEventListener("change", () => {
+      this._validarCampo("servico");
+      this._atualizarValor();
+      this._resetSelecao();
+      this._atualizarBloqueio();
+      this._renderCalendario();
+    });
+
+    this.els.medico.addEventListener("change", () => {
+      this._validarCampo("medico");
+      this._resetSelecao();
+      this._atualizarBloqueio();
+      this._renderCalendario();
+    });
+
+    this.els.prev.addEventListener("click", () => this._navegarMes(-1));
+    this.els.next.addEventListener("click", () => this._navegarMes(1));
+    this.els.clear.addEventListener("click", () => this._resetTudo());
+    this.els.form.addEventListener("submit", (e) => e.preventDefault());
+  }
+
+  /* =================================================================
+   *  VALIDAÇÃO
+   * ================================================================= */
+  _wrap(campo) { return this.controles[campo].closest(".ag-field"); }
+
+  _regras() {
+    return {
+      nome:     (v) => v.trim().split(/\s+/).filter(Boolean).length >= 2 || "Informe nome e sobrenome.",
+      cpf:      (v) => this._cpfValido(v) || "CPF inválido.",
+      whatsapp: (v) => v.replace(/\D/g, "").length >= 10 || "WhatsApp inválido.",
+      servico:  (v) => !!v || "Selecione um procedimento.",
+      medico:   (v) => !!v || "Selecione um profissional."
+    };
+  }
+
+  _validarCampo(campo) {
+    const ctrl = this.controles[campo];
+    const resultado = this._regras()[campo](ctrl.value);
+    const ok = resultado === true;
+    const wrap = this._wrap(campo);
+
+    wrap.classList.toggle("is-valid", ok && ctrl.value.trim() !== "");
+    wrap.classList.toggle("is-invalid", !ok);
+    wrap.querySelector(".ag-error-msg").textContent = ok ? "" : resultado;
+    ctrl.setAttribute("aria-invalid", ok ? "false" : "true");
+    return ok;
+  }
+
+  _validarFormulario({ focar = false } = {}) {
+    const campos = ["nome", "cpf", "whatsapp", "servico", "medico"];
+    let primeiroInvalido = null;
+    campos.forEach(c => {
+      if (!this._validarCampo(c) && !primeiroInvalido) primeiroInvalido = this.controles[c];
+    });
+    if (primeiroInvalido && focar) {
+      primeiroInvalido.focus();
+      primeiroInvalido.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    return !primeiroInvalido;
+  }
+
+  _cpfValido(cpfRaw) {
+    const cpf = (cpfRaw || "").replace(/\D/g, "");
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    let soma = 0;
+    for (let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
+    let d1 = (soma * 10) % 11; if (d1 === 10) d1 = 0;
+    if (d1 !== parseInt(cpf[9])) return false;
+    soma = 0;
+    for (let i = 0; i < 10; i++) soma += parseInt(cpf[i]) * (11 - i);
+    let d2 = (soma * 10) % 11; if (d2 === 10) d2 = 0;
+    return d2 === parseInt(cpf[10]);
+  }
+
+  /* =================================================================
+   *  MÁSCARAS
+   * ================================================================= */
+  _maskCPF(v) {
+    return v.replace(/\D/g, "").slice(0, 11)
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  }
+  _maskTel(v) {
+    v = v.replace(/\D/g, "").slice(0, 11);
+    if (v.length <= 10)
+      return v.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{4})(\d)/, "$1-$2");
+    return v.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
+  }
+
+  /* =================================================================
+   *  VALOR DINÂMICO
+   * ================================================================= */
+  _atualizarValor() {
+    const s = this.servicos.find(x => x.id === this.els.servico.value);
+    this.els.valor.textContent = this._brl(s ? s.valor : 0);
+  }
+  _brl(n) {
+    return (n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  /* =================================================================
+   *  CALENDÁRIO
+   * ================================================================= */
+  _prontoParaAgenda() { return !!this.els.servico.value && !!this.els.medico.value; }
+
+  _atualizarBloqueio() {
+    const bloqueado = !this._prontoParaAgenda();
+    this.els.calShell.classList.toggle("is-locked", bloqueado);
+    this.els.calShell.setAttribute("aria-disabled", String(bloqueado));
+    if (bloqueado) {
+      this._renderEmpty("calendar", "Preencha procedimento e profissional para liberar a agenda.");
+      this.els.selDate.hidden = true;
+    }
+  }
+
+  _navegarMes(delta) {
+    const nova = new Date(this.estado.ano, this.estado.mes + delta, 1);
+    this.estado.mes = nova.getMonth();
+    this.estado.ano = nova.getFullYear();
+    this._renderCalendario();
+  }
+
+  _renderCalendario() {
+    const { ano, mes } = this.estado;
+    this.els.monthYear.textContent = `${this.meses[mes]} ${ano}`;
+    this.els.daysGrid.innerHTML = "";
+
+    const bloqueado = !this._prontoParaAgenda();
+    const medico = this.medicos.find(m => m.id === this.els.medico.value);
+    const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+    const totalDias = new Date(ano, mes + 1, 0).getDate();
+
+    // Navegação: não retroceder antes do mês atual
+    const primeiroMesRender = new Date(ano, mes, 1);
+    const primeiroMesAtual = new Date(this.estado.hoje.getFullYear(), this.estado.hoje.getMonth(), 1);
+    this.els.prev.disabled = bloqueado || primeiroMesRender <= primeiroMesAtual;
+    this.els.next.disabled = bloqueado;
+
+    // Células vazias antes do dia 1
+    for (let i = 0; i < primeiroDiaSemana; i++) {
+      const e = document.createElement("div");
+      e.className = "ag-day-empty";
+      this.els.daysGrid.appendChild(e);
+    }
+
+    for (let dia = 1; dia <= totalDias; dia++) {
+      const data = this._normalizar(new Date(ano, mes, dia));
+      const iso = this._toISO(data);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "ag-day";
+      btn.textContent = dia;
+      btn.setAttribute("role", "gridcell");
+      btn.setAttribute("aria-label", this._dataLonga(data));
+
+      const passado = data < this.estado.hoje;
+      const naoAtende = medico && !medico.diasAtendimento.includes(data.getDay());
+      const desabilitado = bloqueado || passado || naoAtende;
+
+      if (this._mesmaData(data, this.estado.hoje)) btn.classList.add("is-today");
+
+      if (iso === this.estado.dataSelecionada) {
+        btn.classList.add("is-selected");
+        btn.setAttribute("aria-pressed", "true");
+      } else {
+        btn.setAttribute("aria-pressed", "false");
+      }
+
+      if (desabilitado) {
+        btn.disabled = true;
+      } else {
+        btn.addEventListener("click", () => this._selecionarData(data));
+      }
+      this.els.daysGrid.appendChild(btn);
+    }
+  }
+
+  _selecionarData(data) {
+    if (!this._validarFormulario({ focar: true })) {
+      this.els.status.textContent = "Revise os campos destacados antes de escolher um horário.";
+      this._toast("Preencha os campos obrigatórios acima.", "error");
+      return;
+    }
+    this.estado.dataSelecionada = this._toISO(data);
+    this.estado.horaSelecionada = null;
+
+    this.els.selDate.textContent = this._dataLonga(data);
+    this.els.selDate.hidden = false;
+    this.els.status.textContent = "Escolha um horário e confirme na mesma linha.";
+
+    this._renderCalendario();
+    this._renderSlots();
+    this._scrollMobile(".ag-time-col");
+  }
+
+  /* =================================================================
+   *  HORÁRIOS / SLOTS
+   * ================================================================= */
+  _renderSlots() {
+    const medico = this.medicos.find(m => m.id === this.els.medico.value);
+    if (!medico || !this.estado.dataSelecionada) {
+      this._renderEmpty("calendar", "Escolha uma data disponível no calendário.");
+      return;
+    }
+
+    const ocupados = this._lerAgendamentos()
+      .filter(a => a.medicoId === medico.id && a.data === this.estado.dataSelecionada)
+      .map(a => a.hora);
+
+    this.els.slots.innerHTML = "";
+    let disponiveis = 0;
+
+    medico.slots.forEach(hora => {
+      const ocupado = ocupados.includes(hora);
+      if (!ocupado) disponiveis++;
+
+      const row = document.createElement("div");
+      row.className = "ag-slot-row";
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "ag-slot-btn";
+      btn.textContent = ocupado ? `${hora} indisponível` : hora;
+      btn.disabled = ocupado;
+      btn.dataset.ocupado = String(ocupado);
+      btn.setAttribute("aria-label", ocupado ? `${hora} indisponível` : `Selecionar horário ${hora}`);
+
+      const confirm = document.createElement("button");
+      confirm.type = "button";
+      confirm.className = "ag-confirm-btn";
+      confirm.textContent = "Confirmar ✓";
+      confirm.tabIndex = -1;
+      confirm.setAttribute("aria-hidden", "true");
+      confirm.setAttribute("aria-label", `Confirmar horário ${hora}`);
+
+      if (!ocupado) {
+        btn.addEventListener("click", () => this._ativarHorario(row, hora, btn, confirm));
+        confirm.addEventListener("click", () => this._finalizar());
+      }
+
+      row.append(btn, confirm);
+      this.els.slots.appendChild(row);
+    });
+
+    if (disponiveis === 0) {
+      this._renderEmpty("clock", "Nenhum horário livre nesta data. Tente outro dia.");
+    }
+  }
+
+  _ativarHorario(row, hora, btn, confirm) {
+    this.els.slots.querySelectorAll(".ag-slot-row.is-active").forEach(r => {
+      r.classList.remove("is-active");
+      const c = r.querySelector(".ag-confirm-btn");
+      const b = r.querySelector(".ag-slot-btn");
+      if (c) { c.tabIndex = -1; c.setAttribute("aria-hidden", "true"); }
+      if (b) b.setAttribute("aria-pressed", "false");
+    });
+    row.classList.add("is-active");
+    btn.setAttribute("aria-pressed", "true");
+    confirm.tabIndex = 0;
+    confirm.setAttribute("aria-hidden", "false");
+    confirm.focus();
+
+    this.estado.horaSelecionada = hora;
+    this.els.status.textContent = `Horário selecionado: ${hora}.`;
+  }
+
+  /* =================================================================
+   *  SUBMISSÃO (assíncrona, com estado de carregamento)
+   * ================================================================= */
+  _setConfirmando(ativo) {
+    this.estado.confirmando = ativo;
+    this.root.classList.toggle("is-confirming", ativo);
+    this.root.setAttribute("aria-busy", String(ativo));
+    this.els.clear.disabled = ativo;
+    this.els.slots.querySelectorAll("button").forEach(b => {
+      b.disabled = ativo || b.dataset.ocupado === "true";
+    });
+  }
+
+  async _finalizar() {
+    if (this.estado.confirmando) return;
+
+    if (!this._validarFormulario({ focar: true }) || !this.estado.dataSelecionada || !this.estado.horaSelecionada) {
+      this.els.status.textContent = "Preencha os campos obrigatórios, selecione data e horário.";
+      this._toast("Verifique os dados antes de confirmar.", "error");
+      return;
+    }
+
+    const payload = this._criarPayload();
+    this._setConfirmando(true);
+    this.els.status.textContent = "Confirmando agendamento...";
+
+    try {
+      await this._salvarNoBanco(payload);
+      await this._dispararWhatsApp(payload);
+      this._toast(`Agendamento confirmado para ${this._isoParaBR(payload.data)} às ${payload.hora}!`, "success");
+      this._resetTudo();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      console.error("Falha ao finalizar agendamento:", err);
+      this.els.status.textContent = "Não foi possível confirmar agora. Tente novamente.";
+      this._toast(err.message === "conflito" ? "Este horário acabou de ser reservado. Escolha outro." : "Falha ao salvar. Tente novamente.", "error");
+      if (err.message === "conflito") this._renderSlots();
+    } finally {
+      this._setConfirmando(false);
+    }
+  }
+
+  _criarPayload() {
+    const servico = this.servicos.find(s => s.id === this.els.servico.value);
+    const medico = this.medicos.find(m => m.id === this.els.medico.value);
+    const cpf = this.els.cpf.value.replace(/\D/g, "");
+    const senhaProvisoria = this._gerarSenhaProvisoria();
+
+    return {
+      id:          Date.now(),
+      nome:        this.els.nome.value.trim(),
+      cpf,
+      whatsapp:    this.els.whatsapp.value,
+      servicoId:   servico.id,
+      servico:     servico.nome,
+      valor:       servico.valor,
+      medicoId:    medico.id,
+      medico:      medico.nome,
+      data:        this.estado.dataSelecionada,
+      hora:        this.estado.horaSelecionada,
+      criadoEm:    new Date().toISOString(),
+      portal: { login: cpf, senhaProvisoria, trocarSenhaNoPrimeiroAcesso: true }
+    };
+  }
+
+  /**
+   * Ponto único de persistência. Hoje usa localStorage (mock).
+   * Substituir pelo bloco fetch/axios quando o backend existir.
+   */
+  async _salvarNoBanco(payload) {
+    // ---------- INÍCIO: integração futura com backend ----------
+    //
+    // const resposta = await fetch("https://api.suaclinica.com/agendamentos", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+    //   body: JSON.stringify(payload)
+    // });
+    // if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
+    // return await resposta.json();
+    //
+    // // Alternativa com axios:
+    // // const { data } = await axios.post("/agendamentos", payload);
+    // // return data;
+    //
+    // ---------- FIM: integração futura com backend ----------
+
+    // --- MOCK atual (localStorage) com checagem de conflito ---
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const lista = this._lerAgendamentos();
+        const conflito = lista.some(a =>
+          a.medicoId === payload.medicoId && a.data === payload.data && a.hora === payload.hora);
+        if (conflito) return reject(new Error("conflito"));
+        lista.push(payload);
+        this._gravarAgendamentos(lista);
+        resolve({ ok: true, id: payload.id });
+      }, 350); // simula latência de rede
+    });
+  }
+
+  /**
+   * Disparo de WhatsApp + criação de acesso ao portal (mock).
+   * Estrutura preparada para o futuro webhook de automação.
+   */
+  async _dispararWhatsApp(payload) {
+    const mensagem =
+      `Olá, ${payload.nome}! Seu agendamento foi confirmado:\n` +
+      `• Procedimento: ${payload.servico}\n` +
+      `• Profissional: ${payload.medico}\n` +
+      `• Data: ${this._isoParaBR(payload.data)} às ${payload.hora}\n\n` +
+      `Criamos automaticamente seu acesso ao portal da clínica.\n` +
+      `Login: ${payload.cpf} (seu CPF)\n` +
+      `Senha provisória: ${payload.portal.senhaProvisoria}\n` +
+      `A troca de senha será obrigatória no primeiro acesso.`;
+
+    // ---------- INÍCIO: integração futura com API de WhatsApp ----------
+    //
+    // await fetch("https://webhook.automacao.com/whatsapp/enviar", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({ telefone: payload.whatsapp, mensagem, agendamentoId: payload.id })
+    // });
+    //
+    // // Criação da conta no portal (backend gera usuário com senha provisória
+    // //  + flag trocarSenhaNoPrimeiroAcesso = true).
+    //
+    // ---------- FIM: integração futura com API de WhatsApp ----------
+
+    console.log("[WhatsApp MOCK] Mensagem que seria enviada:\n", mensagem);
+    return Promise.resolve({ enviado: true });
+  }
+
+  _gerarSenhaProvisoria() {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let s = "";
+    for (let i = 0; i < this.SENHA_PROVISORIA_LEN; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    return s;
+  }
+
+  /* =================================================================
+   *  PERSISTÊNCIA (MOCK localStorage)
+   * ================================================================= */
+  _lerAgendamentos() {
+    try {
+      return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || [];
+    } catch (_) {
+      localStorage.removeItem(this.STORAGE_KEY);
+      return [];
+    }
+  }
+  _gravarAgendamentos(lista) {
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(lista));
+  }
+
+  /* =================================================================
+   *  RESET / ESTADOS / UTILITÁRIOS
+   * ================================================================= */
+  _resetSelecao() {
+    this.estado.dataSelecionada = null;
+    this.estado.horaSelecionada = null;
+    this.els.selDate.hidden = true;
+    if (this._prontoParaAgenda()) this._renderEmpty("calendar", "Escolha um dia disponível no calendário.");
+  }
+
+  _resetTudo() {
+    this.els.form.reset();
+    ["nome", "cpf", "whatsapp", "servico", "medico"].forEach(c => {
+      const w = this._wrap(c);
+      w.classList.remove("is-valid", "is-invalid");
+      w.querySelector(".ag-error-msg").textContent = "";
+      this.controles[c].setAttribute("aria-invalid", "false");
+    });
+    this.estado.mes = this.estado.hoje.getMonth();
+    this.estado.ano = this.estado.hoje.getFullYear();
+    this.estado.dataSelecionada = null;
+    this.estado.horaSelecionada = null;
+
+    this.els.status.textContent = "O horário escolhido é confirmado no mesmo clique.";
+    this._atualizarValor();
+    this._atualizarBloqueio();
+    this._renderCalendario();
+  }
+
+  _renderEmpty(tipo, msg) {
+    const icones = {
+      calendar: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
+      clock:    `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
+    };
+    this.els.slots.innerHTML = `<div class="ag-empty">${icones[tipo] || icones.calendar}<p>${msg}</p></div>`;
+  }
+
+  _toast(msg, tipo = "success") {
+    const toast = document.createElement("div");
+    toast.className = `ag-toast is-${tipo}`;
+    toast.setAttribute("role", tipo === "error" ? "alert" : "status");
+    const icone = tipo === "success"
+      ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`
+      : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+    toast.innerHTML = `${icone}<span>${msg}</span>`;
+    this.els.toastWrap.appendChild(toast);
+    setTimeout(() => {
+      toast.style.animation = "agFadeOut 0.3s ease forwards";
+      setTimeout(() => toast.remove(), 320);
+    }, 4200);
+  }
+
+  _scrollMobile(seletor) {
+    if (typeof window.matchMedia === "function" && window.matchMedia("(max-width: 879px)").matches) {
+      const alvo = this.root.querySelector(seletor);
+      if (alvo) setTimeout(() => alvo.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+    }
+  }
+
+  _normalizar(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  _mesmaData(a, b) { return a.getTime() === b.getTime(); }
+  _toISO(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+  _isoParaBR(iso) { const [y, m, d] = iso.split("-"); return `${d}/${m}/${y}`; }
+  _dataLonga(d) {
+    return `${this.diasSemana[d.getDay()]}, ${d.getDate()} de ${this.meses[d.getMonth()]} de ${d.getFullYear()}`;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  new SistemaAgendamentoUI("ag-app");
+});
+</script>
+</body>
+</html>
